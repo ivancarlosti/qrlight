@@ -16,6 +16,12 @@ RUN VERSION=$(cat /tmp/mini-qr-version.txt) && \
       git clone --branch "$VERSION" --depth 1 https://github.com/lyqht/mini-qr.git .; \
     fi
 
+# Overwrite the GitHub link and the app title with user's specific text
+RUN sed -i 's|href="https://github.com/lyqht/mini-qr"|href="https://github.com/ivancarlosti/qrlight"|g' src/App.vue && \
+    sed -i 's/Mini QR Code Generator/QRLight/g' index.html && \
+    find locales -type f -name "*.json" -exec sed -i 's/Mini QR Code Generator/QRLight/g' {} + && \
+    find locales -type f -name "*.json" -exec sed -i 's/Mini QR/QRLight/g' {} +
+
 # Set custom variables to be baked into the image
 ENV VITE_DEFAULT_PRESET=plain
 ENV VITE_HIDE_CREDITS=true
