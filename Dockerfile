@@ -5,11 +5,11 @@ WORKDIR /app
 # Install git so we can clone the repo
 RUN apk add --no-cache git
 
-# Copy the control file that contains the target version
-COPY mini-qr-version.txt .
+# Copy the control file to /tmp so /app remains empty for git clone
+COPY mini-qr-version.txt /tmp/mini-qr-version.txt
 
 # Clone the specific version of the repository
-RUN VERSION=$(cat mini-qr-version.txt) && \
+RUN VERSION=$(cat /tmp/mini-qr-version.txt) && \
     if [ "$VERSION" = "main" ] || [ -z "$VERSION" ]; then \
       git clone --depth 1 https://github.com/lyqht/mini-qr.git .; \
     else \
