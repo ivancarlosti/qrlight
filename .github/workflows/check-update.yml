@@ -1,0 +1,57 @@
+name: Check mini-qr Updates
+
+on:
+  schedule:
+    # Run every day at 9:44 AM UTC
+    - cron: '44 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch latest release from lyqht/mini-qr
+        id: fetch_release
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/lyqht/mini-qr/releases/latest | jq -r .tag_name)
+          if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" == "null" ]; then
+            echo "No release found, using main."
+            LATEST_RELEASE="main"
+          fi
+          echo "release=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+
+      - name: Check if update is needed
+        id: check
+        run: |
+          LATEST_RELEASE="${{ steps.fetch_release.outputs.release }}"
+          
+          if [ ! -f mini-qr-version.txt ]; then
+            CURRENT_RELEASE=""
+          else
+            CURRENT_RELEASE=$(cat mini-qr-version.txt)
+          fi
+          
+          if [ "$LATEST_RELEASE" != "$CURRENT_RELEASE" ]; then
+            echo "New release detected: $LATEST_RELEASE (old: $CURRENT_RELEASE)"
+            echo "$LATEST_RELEASE" > mini-qr-version.txt
+            echo "updated=true" >> $GITHUB_OUTPUT
+            echo "new_version=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+          else
+            echo "Already up to date."
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push if updated
+        if: steps.check.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mini-qr-version.txt
+          git commit -m "Update mini-qr to version ${{ steps.check.outputs.new_version }}"
+          git push
