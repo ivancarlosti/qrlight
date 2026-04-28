@@ -20,7 +20,8 @@ RUN VERSION=$(cat /tmp/mini-qr-version.txt) && \
 RUN sed -i 's|href="https://github.com/lyqht/mini-qr"|href="https://github.com/ivancarlosti/qrlight"|g' src/App.vue && \
     sed -i 's/Mini QR Code Generator/QRLight/g' index.html && \
     find locales -type f -name "*.json" -exec sed -i 's/Mini QR Code Generator/QRLight/g' {} + && \
-    find locales -type f -name "*.json" -exec sed -i 's/Mini QR/QRLight/g' {} +
+    find locales -type f -name "*.json" -exec sed -i 's/Mini QR/QRLight/g' {} + && \
+    find src -type f \( -name "*.vue" -o -name "*.ts" \) -exec sed -i 's/MiniQR/QRLight/g' {} +
 
 # Set custom variables to be baked into the image
 ENV VITE_DEFAULT_PRESET=Plain
