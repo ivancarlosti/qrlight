@@ -23,7 +23,7 @@ RUN sed -i 's|href="https://github.com/lyqht/mini-qr"|href="https://github.com/i
     find locales -type f -name "*.json" -exec sed -i 's/Mini QR/QRLight/g' {} +
 
 # Set custom variables to be baked into the image
-ENV VITE_DEFAULT_PRESET=plain
+ENV VITE_DEFAULT_PRESET=Plain
 ENV VITE_HIDE_CREDITS=true
 ENV VITE_DISABLE_LOCAL_STORAGE=true
 
