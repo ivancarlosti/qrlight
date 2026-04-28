@@ -27,7 +27,6 @@ RUN find src -type f -exec sed -i 's|https://github.com/lyqht/mini-qr|https://gi
 ENV VITE_DEFAULT_PRESET=Plain
 ENV VITE_HIDE_CREDITS=true
 ENV VITE_DISABLE_LOCAL_STORAGE=true
-ENV VITE_QR_CODE_PRESETS='["Plain"]'
 
 # Install dependencies and build the app
 RUN npm install
