@@ -17,7 +17,7 @@ RUN VERSION=$(cat /tmp/mini-qr-version.txt) && \
     fi
 
 # Overwrite the GitHub link and the app title with user's specific text
-RUN sed -i 's|href="https://github.com/lyqht/mini-qr"|href="https://github.com/ivancarlosti/qrlight"|g' src/App.vue && \
+RUN find src -type f -exec sed -i 's|https://github.com/lyqht/mini-qr|https://github.com/ivancarlosti/qrlight|g' {} + && \
     sed -i 's/Mini QR Code Generator/QRLight/g' index.html && \
     find locales -type f -name "*.json" -exec sed -i 's/Mini QR Code Generator/QRLight/g' {} + && \
     find locales -type f -name "*.json" -exec sed -i 's/Mini QR/QRLight/g' {} + && \
