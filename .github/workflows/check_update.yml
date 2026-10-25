@@ -8,14 +8,17 @@ on:
 
 permissions:
   contents: write
-  actions: write       # required to dispatch semantic-release.yml
+  actions: write       # required to dispatch semantic-release.yml / build.yml
 
 jobs:
   check-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          # Full history so a manual run can see this repo's release tags.
+          fetch-depth: 0
 
       - name: Fetch latest release from lyqht/mini-qr
         id: fetch_release
@@ -25,43 +28,57 @@ jobs:
           # Authenticated call: the unauthenticated endpoint is rate limited on
           # shared runner IPs, and a 403 used to look like "no release" and
           # downgrade the tracked version to main.
+          # The tag is untrusted API data. Match the whole value, not one line,
+          # so a newline cannot hide a second command. There is no fallback to
+          # main: anything that is not a plain version fails the job before the
+          # repository is changed. This string only chooses which mini-qr
+          # commit to build; semantic-release owns this repo's git tags.
           LATEST_RELEASE=$(gh api repos/lyqht/mini-qr/releases/latest --jq '.tag_name')
-          if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" == "null" ]; then
-            echo "No release found, using main."
-            LATEST_RELEASE="main"
+          if [[ ! "$LATEST_RELEASE" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo '::error::Upstream release tag does not match ^v?[0-9]+\.[0-9]+\.[0-9]+$; leaving the repository unchanged.'
+            exit 1
           fi
-          echo "release=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+          echo "release=$LATEST_RELEASE" >> "$GITHUB_OUTPUT"
 
       - name: Check if update is needed
         id: check
+        env:
+          LATEST_RELEASE: ${{ steps.fetch_release.outputs.release }}
         run: |
-          LATEST_RELEASE="${{ steps.fetch_release.outputs.release }}"
-          
+          # The upstream tag arrives through the environment, then is checked
+          # again before it is written to disk or to $GITHUB_OUTPUT.
+          if [[ ! "$LATEST_RELEASE" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo '::error::Upstream release tag does not match ^v?[0-9]+\.[0-9]+\.[0-9]+$; leaving the repository unchanged.'
+            exit 1
+          fi
+
           if [ ! -f mini-qr-version.txt ]; then
             CURRENT_RELEASE=""
           else
             CURRENT_RELEASE=$(cat mini-qr-version.txt)
           fi
-          
+
           if [ "$LATEST_RELEASE" != "$CURRENT_RELEASE" ]; then
             echo "New release detected: $LATEST_RELEASE (old: $CURRENT_RELEASE)"
             echo "$LATEST_RELEASE" > mini-qr-version.txt
-            echo "updated=true" >> $GITHUB_OUTPUT
-            echo "new_version=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+            echo "new_version=$LATEST_RELEASE" >> "$GITHUB_OUTPUT"
           else
             echo "Already up to date."
-            echo "updated=false" >> $GITHUB_OUTPUT
+            echo "updated=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Commit and push if updated
         if: steps.check.outputs.updated == 'true'
+        env:
+          NEW_VERSION: ${{ steps.check.outputs.new_version }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add mini-qr-version.txt
           # Conventional type: semantic-release turns this into a patch release,
           # which is what produces the new Docker image.
-          git commit -m "fix(deps): update mini-qr to ${{ steps.check.outputs.new_version }}"
+          git commit -m "fix(deps): update mini-qr to ${NEW_VERSION}"
           git push
 
       - name: Trigger release workflow
@@ -71,6 +88,22 @@ jobs:
         run: |
           # A push made with GITHUB_TOKEN does not start other workflows, so the
           # commit above never reaches semantic-release on its own. Dispatch it
-          # explicitly (same workaround as moocker/fitdraw).
+          # explicitly (same workaround as moocker/fitdraw). No version input:
+          # semantic-release chooses the next patch from the fix(deps) commit.
           sleep 5
           gh workflow run semantic-release.yml --ref "${{ github.ref_name }}"
+
+      - name: Manual run with no new mini-qr — rebuild current release
+        if: steps.check.outputs.updated == 'false' && github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # No new upstream version. Rebuild the newest release tag of this
+          # repository without creating a new version.
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ -z "$TAG" ]; then
+            echo "No release tag found; nothing to rebuild."
+            exit 0
+          fi
+          echo "Rebuilding existing release ${TAG}"
+          gh workflow run build.yml --ref main -f version="${TAG}"
