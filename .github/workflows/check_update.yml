@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  actions: write       # required to dispatch semantic-release.yml
 
 jobs:
   check-release:
@@ -18,8 +19,13 @@ jobs:
 
       - name: Fetch latest release from lyqht/mini-qr
         id: fetch_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/lyqht/mini-qr/releases/latest | jq -r .tag_name)
+          # Authenticated call: the unauthenticated endpoint is rate limited on
+          # shared runner IPs, and a 403 used to look like "no release" and
+          # downgrade the tracked version to main.
+          LATEST_RELEASE=$(gh api repos/lyqht/mini-qr/releases/latest --jq '.tag_name')
           if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" == "null" ]; then
             echo "No release found, using main."
             LATEST_RELEASE="main"
@@ -53,5 +59,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add mini-qr-version.txt
-          git commit -m "Update mini-qr to version ${{ steps.check.outputs.new_version }}"
+          # Conventional type: semantic-release turns this into a patch release,
+          # which is what produces the new Docker image.
+          git commit -m "fix(deps): update mini-qr to ${{ steps.check.outputs.new_version }}"
           git push
+
+      - name: Trigger release workflow
+        if: steps.check.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # A push made with GITHUB_TOKEN does not start other workflows, so the
+          # commit above never reaches semantic-release on its own. Dispatch it
+          # explicitly (same workaround as moocker/fitdraw).
+          sleep 5
+          gh workflow run semantic-release.yml --ref "${{ github.ref_name }}"
