@@ -32,11 +32,28 @@ else is upstream's work.
   that reject WPA2 clients.
 - **Design controls** — dot styles and colours, corner styles, gradients, logos,
   frames with captions and Google Fonts.
+- **One bundled preset** — Plain, a neutral print-friendly style, is the default
+  and the only design preset that ships. Deployments can replace the list with
+  their own designs via `VITE_QR_CODE_PRESETS`.
 - **Export** — PNG, JPG, SVG, ASCII/Unicode text, batch export from CSV, and
   copy-to-clipboard.
 - **Scanner** — scan codes with the camera or from an image file.
 - **Offline PWA** — installable, and every feature works without a backend.
 - **No update check** — nothing in this fork polls a remote endpoint.
+
+## Screenshots
+
+|                                                                                 |                                                                                 |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| **Create** — Plain preset (the default)                                         | **Frame and caption** — print-ready output                                      |
+| ![Create view with the Plain preset](docs/screenshots/create-plain-desktop.png) | ![Create view with a frame and caption](docs/screenshots/create-with-frame.png) |
+| **Print preview** — code, caption, details                                      | **Scan** — camera or image file                                                 |
+| ![Print preview](docs/screenshots/print-preview.png)                            | ![Scan view](docs/screenshots/scan-desktop.png)                                 |
+| **Mobile** — export bottom sheet                                                | **Dark mode** — follows the system theme                                        |
+| ![Create view on a phone](docs/screenshots/create-mobile.png)                   | ![Create view in dark mode](docs/screenshots/create-dark-desktop.png)           |
+
+Screenshots live in `docs/screenshots/` and are generated with `pnpm screenshots`
+(Playwright plus a throwaway dev server).
 
 ## Getting started
 
@@ -58,6 +75,7 @@ Other scripts:
 | `pnpm test:e2e`             | Playwright end-to-end tests (needs `pnpm exec playwright install chromium`) |
 | `pnpm type-check`           | `vue-tsc --noEmit`                                                          |
 | `pnpm lint` / `pnpm format` | ESLint / Prettier                                                           |
+| `pnpm screenshots`          | Regenerates the README screenshots into `docs/screenshots/`                 |
 | `pnpm sync-i18n`            | Adds missing `t()` keys to `locales/en.json`                                |
 
 ## Printing
@@ -108,19 +126,19 @@ silently becoming an open network.
 Copy `.env.example` to `.env` and adjust as needed. All variables are inlined at
 build time (`VITE_*`) except `BASE_PATH`.
 
-| Variable                                   | Default      | Description                                                                                   |
-| ------------------------------------------ | ------------ | --------------------------------------------------------------------------------------------- |
-| `BASE_PATH`                                | `./`         | Base path the app is served from, e.g. `/qrlight`                                             |
-| `VITE_APP_VERSION`                         | –            | Version shown in the footer. `vX.Y.Z` overrides the changelog lookup; set by the Docker build |
-| `VITE_DEFAULT_PRESET`                      | first preset | Preset name used for a fresh session, e.g. `Plain`                                            |
-| `VITE_DEFAULT_DATA_TO_ENCODE`              | –            | Pre-filled data for the create form                                                           |
-| `VITE_QR_CODE_PRESETS`                     | all          | Comma-separated whitelist of preset names                                                     |
-| `VITE_FRAME_PRESET` / `VITE_FRAME_PRESETS` | –            | Default / whitelisted frame presets                                                           |
-| `VITE_HIDE_CREDITS`                        | `false`      | Hides the footer credit line and the changelog dialog                                         |
-| `VITE_DISABLE_LOCAL_STORAGE`               | `false`      | Disables persisting the config in `localStorage`                                              |
-| `VITE_ENABLE_ANALYTICS`                    | `false`      | Enables Vercel Web Analytics                                                                  |
-| `VITE_QR_CREATE_SIMPLE_FULL_MODE_TOGGLE`   | `false`      | Shows the Simple/Full mode toggle                                                             |
-| `VITE_FIELDS_VISIBLE`                      | –            | Comma-separated field keys for a fixed Simple mode                                            |
+| Variable                                   | Default | Description                                                                                   |
+| ------------------------------------------ | ------- | --------------------------------------------------------------------------------------------- |
+| `BASE_PATH`                                | `./`    | Base path the app is served from, e.g. `/qrlight`                                             |
+| `VITE_APP_VERSION`                         | –       | Version shown in the footer. `vX.Y.Z` overrides the changelog lookup; set by the Docker build |
+| `VITE_DEFAULT_PRESET`                      | `Plain` | Preset used for a fresh session                                                               |
+| `VITE_DEFAULT_DATA_TO_ENCODE`              | –       | Pre-filled data for the create form                                                           |
+| `VITE_QR_CODE_PRESETS`                     | `Plain` | JSON array of preset objects; replaces the built-in preset list entirely                      |
+| `VITE_FRAME_PRESET` / `VITE_FRAME_PRESETS` | –       | Default / whitelisted frame presets                                                           |
+| `VITE_HIDE_CREDITS`                        | `false` | Hides the footer credit line and the changelog dialog                                         |
+| `VITE_DISABLE_LOCAL_STORAGE`               | `false` | Disables persisting the config in `localStorage`                                              |
+| `VITE_ENABLE_ANALYTICS`                    | `false` | Enables Vercel Web Analytics                                                                  |
+| `VITE_QR_CREATE_SIMPLE_FULL_MODE_TOGGLE`   | `false` | Shows the Simple/Full mode toggle                                                             |
+| `VITE_FIELDS_VISIBLE`                      | –       | Comma-separated field keys for a fixed Simple mode                                            |
 
 ## Docker
 
@@ -145,6 +163,7 @@ the `Dockerfile` (or your own build stage) if you want the full experience.
 | Added printing           | `QRCodePrintSheet.vue`, `src/print.css`, `printDetails.ts`                   |
 | Added WPA3 (SAE)         | `WifiEncryption` gained `SAE`; scanned aliases are normalised                |
 | Rebranded                | QRLight naming, locales and PWA manifest; upstream credit kept               |
+| Single preset            | Only the neutral `Plain` design ships; the branded samples were removed      |
 | Vendored source          | Built straight from this repository, no upstream clone during `docker build` |
 
 Upstream version this fork tracks: **Mini QR v0.33.0**.

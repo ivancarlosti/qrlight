@@ -28,9 +28,10 @@ QRLight is a modified version of **Mini QR**, distributed under the
 3. Wi-Fi QR codes gained **WPA3 (SAE)** support: the payload can be emitted as
    `WIFI:T:SAE;...` for WPA3-Personal-only networks, and scanned security tokens
    (`WPA2`, `WPA3`, mixed case) are normalised into the form.
-4. Branding, copy, default sample data, PWA manifest and the default preset name
-   were changed from Mini QR to QRLight. The application source is vendored in
-   this repository, so the Docker image builds without cloning upstream.
+4. Branding, copy, default sample data, PWA manifest and the preset list (Plain
+   only, as the default) were changed from Mini QR to QRLight. The application
+   source is vendored in this repository, so the Docker image builds without
+   cloning upstream.
 5. The Crowdin translation sync, DeepL helper script, Storybook deployment
    workflow, Docker publishing workflow and the update-check workflow bundled
    with upstream were removed. The translation files themselves are kept as they
@@ -41,5 +42,6 @@ No other functional changes were made.
 ## Third-party assets
 
 The QR renderer, presets, fonts loading strategy, icons, translations and test
-suites are upstream work and remain covered by the GNU GPL v3.0. Presets that
-reference third-party brands (Vercel, Supabase, Vue, …) are design samples only.
+suites are upstream work and remain covered by the GNU GPL v3.0. The bundled
+`Plain` preset derives from upstream's plain preset; the branded sample presets
+(Vercel, Supabase, Vue, …) that shipped with it were removed.

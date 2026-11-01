@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { isValidQRCodeConfig } from './qrCodePresets'
+import {
+  allQrCodePresets,
+  builtInPresets,
+  defaultPreset,
+  isValidQRCodeConfig,
+  plainPreset
+} from './qrCodePresets'
 
 const validStyle = {
   textColor: '#000000',
@@ -95,10 +101,10 @@ describe('isValidQRCodeConfig', () => {
       expect(isValidQRCodeConfig(withImage('data:image/png;base64,iVBORw0KGgo='))).toBe(true)
     })
 
-    it('returns true when image is a same-origin asset path (preset placeholder)', () => {
+    it('returns true when image is a same-origin asset path (Vite asset import)', () => {
       // Vite asset imports resolve to paths like this at runtime.
-      expect(isValidQRCodeConfig(withImage('/assets/placeholder_image-DZ2mUx9p.png'))).toBe(true)
-      expect(isValidQRCodeConfig(withImage('./assets/placeholder_image.png'))).toBe(true)
+      expect(isValidQRCodeConfig(withImage('/assets/logo-DZ2mUx9p.png'))).toBe(true)
+      expect(isValidQRCodeConfig(withImage('./assets/logo.png'))).toBe(true)
     })
 
     it('returns false when image has a non-http(s), non-image scheme', () => {
@@ -112,5 +118,21 @@ describe('isValidQRCodeConfig', () => {
       expect(isValidQRCodeConfig(withImage(42))).toBe(false)
       expect(isValidQRCodeConfig(withImage({ href: 'https://example.com/x.png' }))).toBe(false)
     })
+  })
+})
+
+describe('built-in presets', () => {
+  it('ships Plain as the only design preset', () => {
+    expect(builtInPresets).toHaveLength(1)
+    expect(builtInPresets[0].name).toBe('Plain')
+    expect(plainPreset.name).toBe('Plain')
+  })
+
+  it('uses Plain for a fresh session', () => {
+    // Self-hosted deployments can replace the list (and pick a default) from env;
+    // the shipped configuration has no presets configured.
+    if (import.meta.env.VITE_QR_CODE_PRESETS) return
+    expect(allQrCodePresets.map((p) => p.name)).toEqual(['Plain'])
+    expect(defaultPreset).toBe(plainPreset)
   })
 })
