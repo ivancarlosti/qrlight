@@ -1,9 +1,18 @@
-import { detectDataType } from './dataEncoding'
+import { detectDataType, parseWifiPayload, type WifiEncryption } from './dataEncoding'
 
 /** A label/value pair rendered under the QR code on the printed sheet. */
 export interface PrintDetail {
   label: string
   value: string
+  /** Rendered larger and bolder — used for the Wi-Fi password. */
+  emphasis?: boolean
+}
+
+/** The Wi-Fi card printed under the code so a visitor can join by hand. */
+export interface PrintWifiCard {
+  /** Localized heading above the fields, e.g. "Scan to join the Wi-Fi". */
+  heading: string
+  rows: PrintDetail[]
 }
 
 /** Everything the print sheet needs to render one page. */
@@ -16,6 +25,14 @@ export interface PrintSheetPayload {
   background: string
   /** Document title while the print dialog is open (used in page headers). */
   title: string
+  /** Set for Wi-Fi payloads; replaces the generic data type / payload rows. */
+  wifi?: PrintWifiCard
+}
+
+/** What the details area of the sheet shows for a given payload. */
+export interface PrintSheetContent {
+  details: PrintDetail[]
+  wifi?: PrintWifiCard
 }
 
 type QrDataType = ReturnType<typeof detectDataType>['type']
@@ -80,4 +97,77 @@ export const buildPrintDetails = (options: {
   }
 
   return details
+}
+
+/**
+ * Localized name of a Wi-Fi security mode. Written as explicit `t()` calls (and
+ * not looked up from a record) so `pnpm sync-i18n` finds every key in the
+ * source instead of adding them by hand.
+ */
+const describeWifiSecurity = (encryption: WifiEncryption, t: PrintDetailsTranslator): string => {
+  switch (encryption) {
+    case 'nopass':
+      return t('No encryption')
+    case 'WEP':
+      return t('WEP')
+    case 'SAE':
+      return t('WPA3 (SAE)')
+    default:
+      return t('WPA/WPA2/WPA3')
+  }
+}
+
+/**
+ * Builds the Wi-Fi card printed for handouts: the network name, its password and
+ * the security mode, so a visitor can also join by typing them in.
+ *
+ * Returns `null` for every other payload type, and for `WIFI:` payloads without
+ * a network name (nothing useful to print).
+ */
+export const buildPrintWifiCard = (options: {
+  data: string
+  t: PrintDetailsTranslator
+}): PrintWifiCard | null => {
+  const { data, t } = options
+  const wifi = parseWifiPayload(data)
+
+  if (!wifi || !wifi.ssid) return null
+
+  const rows: PrintDetail[] = [{ label: t('Network Name (SSID)'), value: wifi.ssid }]
+
+  // Open networks have no password to type in, and neither has an empty one.
+  if (wifi.encryption !== 'nopass' && wifi.password) {
+    rows.push({ label: t('Password'), value: wifi.password, emphasis: true })
+  }
+
+  rows.push({ label: t('Encryption'), value: describeWifiSecurity(wifi.encryption, t) })
+
+  if (wifi.hidden) {
+    rows.push({ label: t('Hidden SSID'), value: t('Yes') })
+  }
+
+  return { heading: t('Scan to join the Wi-Fi'), rows }
+}
+
+/**
+ * Chooses what to print under the code: the Wi-Fi card for Wi-Fi payloads (the
+ * raw `WIFI:T:…` string is noise on a visitor handout), the data type and exact
+ * payload for everything else. The frame caption is printed either way, so the
+ * paper code can still be re-created later.
+ */
+export const buildPrintSheetContent = (options: {
+  data: string
+  frameText?: string
+  t: PrintDetailsTranslator
+}): PrintSheetContent => {
+  const { data, frameText, t } = options
+  const wifi = buildPrintWifiCard({ data, t })
+
+  if (!wifi) return { details: buildPrintDetails({ data, frameText, t }) }
+
+  const caption = frameText?.trim()
+  return {
+    details: caption ? [{ label: t('Caption'), value: caption }] : [],
+    wifi
+  }
 }

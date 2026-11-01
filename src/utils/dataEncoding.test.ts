@@ -14,7 +14,8 @@ import {
   escapeVCard,
   escapeWiFi,
   escapeICal,
-  normalizeWifiEncryption
+  normalizeWifiEncryption,
+  parseWifiPayload
 } from './dataEncoding'
 
 describe('Data Encoding Functions', () => {
@@ -114,6 +115,66 @@ describe('Data Encoding Functions', () => {
     expect(normalizeWifiEncryption('wpa3')).toBe('SAE')
     expect(normalizeWifiEncryption('')).toBe('nopass')
     expect(normalizeWifiEncryption(undefined)).toBe('nopass')
+  })
+
+  it('parseWifiPayload splits a payload into the fields a person types in', () => {
+    expect(parseWifiPayload('WIFI:T:WPA;S:MyNet;P:pass123;;')).toEqual({
+      ssid: 'MyNet',
+      password: 'pass123',
+      encryption: 'WPA',
+      hidden: false
+    })
+    expect(parseWifiPayload('WIFI:T:SAE;S:MyNet;P:pass123;H:true;;')).toEqual({
+      ssid: 'MyNet',
+      password: 'pass123',
+      encryption: 'SAE',
+      hidden: true
+    })
+    expect(parseWifiPayload('WIFI:T:nopass;S:Guest;;;')).toEqual({
+      ssid: 'Guest',
+      password: '',
+      encryption: 'nopass',
+      hidden: false
+    })
+  })
+
+  it('parseWifiPayload keeps escaped separators inside values', () => {
+    // The regex-based parser in detectDataType truncates this SSID at the `\;`.
+    expect(parseWifiPayload('WIFI:T:WPA;S:Cafe\\;Bar;P:pass\\;123;;')).toEqual({
+      ssid: 'Cafe;Bar',
+      password: 'pass;123',
+      encryption: 'WPA',
+      hidden: false
+    })
+    expect(parseWifiPayload('WIFI:T:WPA;S:A\\\\B;P:pw;;')?.ssid).toBe('A\\B')
+  })
+
+  it('parseWifiPayload round-trips generateWifiData', () => {
+    const ssid = 'Café; Bar'
+    const password = 'pass;word:"1"'
+
+    for (const encryption of ['WEP', 'WPA', 'SAE', 'nopass'] as const) {
+      const payload = generateWifiData({
+        ssid,
+        encryption,
+        password: encryption === 'nopass' ? undefined : password,
+        hidden: true
+      })
+
+      expect(parseWifiPayload(payload)).toEqual({
+        ssid,
+        password: encryption === 'nopass' ? '' : password,
+        encryption,
+        hidden: true
+      })
+    }
+  })
+
+  it('parseWifiPayload returns null for non-WiFi payloads', () => {
+    expect(parseWifiPayload('https://example.com')).toBeNull()
+    expect(parseWifiPayload('just some text')).toBeNull()
+    expect(parseWifiPayload('')).toBeNull()
+    expect(parseWifiPayload(undefined)).toBeNull()
   })
 
   it('generateVCardData formats vCard string correctly', () => {

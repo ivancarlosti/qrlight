@@ -20,9 +20,10 @@ else is upstream's work.
 ## Features
 
 - **Print** — sends the code to the browser print dialog exactly as previewed:
-  same dots, corners, logo, frame, caption and colours. Optionally prints the data
-  type, the exact encoded payload and the caption underneath, so the paper code can
-  be re-created later.
+  same dots, corners, logo, frame, caption and colours. Optionally prints a
+  details block underneath: the data type and exact encoded payload (so the paper
+  code can be re-created later), or — for Wi-Fi codes — a card with the network
+  name, password, security and hidden flag so a visitor can also join by hand.
 - **All code types** — text, URL, e-mail, phone, SMS, Wi-Fi, vCard, location,
   calendar event and SEPA payment; printing goes through the same SVG export path,
   so every type prints identically.
@@ -63,9 +64,19 @@ Other scripts:
 The **Print** button lives in the _Export QR code_ section, next to PNG/JPG/SVG/TXT.
 It renders the same SVG that _Download SVG_ produces (frame, caption and logo
 included), mounts it into a print-only sheet and opens the browser print dialog.
+The dialog is opened only after the code is in the DOM and its images and fonts
+have decoded, because browsers snapshot the page when `print()` is called — an
+earlier snapshot reaches paper printers with an empty code area.
 
-- `Include details on the printed page` (on by default) adds the data type, the
-  encoded payload and the frame caption under the code.
+- `Include details on the printed page` (on by default) adds a details block under
+  the code.
+- For Wi-Fi payloads that block is a card with the network name (SSID), the
+  password in large monospace type, the security mode (`No encryption`, `WEP`,
+  `WPA/WPA2/WPA3` or `WPA3 (SAE)`) and, for hidden networks, `Hidden SSID: Yes`.
+  The raw `WIFI:T:…` payload is not printed — the card says the same thing in a
+  form a visitor can type in.
+- Every other payload type prints its data type and exact encoded payload, plus
+  the frame caption when one is set.
 - A transparent QR background is printed as white — paper is opaque, so dots on
   transparent would otherwise be invisible.
 - Printing is available for single exports; batch export keeps its ZIP flow.

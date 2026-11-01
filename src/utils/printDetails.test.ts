@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   buildPrintDetails,
+  buildPrintSheetContent,
+  buildPrintWifiCard,
   describeDataType,
   getPrintableBackground,
   type PrintDetailsTranslator
@@ -55,5 +57,85 @@ describe('print details', () => {
 
     expect(details[0]).toEqual({ label: 'Data type', value: 'Contact Card' })
     expect(details[1]?.value).toBe(vcard)
+  })
+
+  describe('Wi-Fi handouts', () => {
+    it('prints the credentials instead of the raw payload', () => {
+      expect(buildPrintSheetContent({ data: 'WIFI:T:WPA;S:CafeGuest;P:welcome123;;', t })).toEqual({
+        details: [],
+        wifi: {
+          heading: 'Scan to join the Wi-Fi',
+          rows: [
+            { label: 'Network Name (SSID)', value: 'CafeGuest' },
+            { label: 'Password', value: 'welcome123', emphasis: true },
+            { label: 'Encryption', value: 'WPA/WPA2/WPA3' }
+          ]
+        }
+      })
+    })
+
+    it('describes every security mode', () => {
+      const security = (data: string) =>
+        buildPrintWifiCard({ data, t })?.rows.find((row) => row.label === 'Encryption')?.value
+
+      expect(security('WIFI:T:WEP;S:Net;P:pw;;')).toBe('WEP')
+      expect(security('WIFI:T:SAE;S:Net;P:pw;;')).toBe('WPA3 (SAE)')
+      expect(security('WIFI:T:nopass;S:Net;;;')).toBe('No encryption')
+    })
+
+    it('omits the password row for open networks', () => {
+      expect(buildPrintWifiCard({ data: 'WIFI:T:nopass;S:Guest;;;', t })?.rows).toEqual([
+        { label: 'Network Name (SSID)', value: 'Guest' },
+        { label: 'Encryption', value: 'No encryption' }
+      ])
+    })
+
+    it('omits an empty password instead of printing a blank row', () => {
+      expect(buildPrintWifiCard({ data: 'WIFI:T:WPA;S:Net;P:;;', t })?.rows).toEqual([
+        { label: 'Network Name (SSID)', value: 'Net' },
+        { label: 'Encryption', value: 'WPA/WPA2/WPA3' }
+      ])
+    })
+
+    it('unescapes the SSID and flags hidden networks', () => {
+      expect(
+        buildPrintWifiCard({ data: 'WIFI:T:WPA;S:Cafe\\;Bar;P:pw;H:true;;', t })?.rows
+      ).toEqual([
+        { label: 'Network Name (SSID)', value: 'Cafe;Bar' },
+        { label: 'Password', value: 'pw', emphasis: true },
+        { label: 'Encryption', value: 'WPA/WPA2/WPA3' },
+        { label: 'Hidden SSID', value: 'Yes' }
+      ])
+    })
+
+    it('keeps the frame caption with the card', () => {
+      const content = buildPrintSheetContent({
+        data: 'WIFI:T:WPA;S:Net;P:pw;;',
+        frameText: '  Scan me  ',
+        t
+      })
+
+      expect(content.details).toEqual([{ label: 'Caption', value: 'Scan me' }])
+      expect(content.wifi?.rows).toHaveLength(3)
+    })
+
+    it('falls back to the generic rows without a network name', () => {
+      expect(buildPrintWifiCard({ data: 'WIFI:T:WPA;P:pw;;', t })).toBeNull()
+      expect(buildPrintSheetContent({ data: 'WIFI:T:WPA;P:pw;;', t })).toEqual({
+        details: [
+          { label: 'Data type', value: 'WiFi' },
+          { label: 'Encoded content', value: 'WIFI:T:WPA;P:pw;;' }
+        ]
+      })
+    })
+
+    it('leaves other payload types on the generic rows', () => {
+      expect(buildPrintSheetContent({ data: 'https://example.com', t })).toEqual({
+        details: [
+          { label: 'Data type', value: 'URL' },
+          { label: 'Encoded content', value: 'https://example.com' }
+        ]
+      })
+    })
   })
 })

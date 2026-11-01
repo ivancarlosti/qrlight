@@ -37,7 +37,7 @@ import { downloadBlob } from '@/utils/download'
 import { parseCSV, validateCSVData, type CSVParsingResult } from '@/utils/csv'
 import { generateBatchExportFilename, processCsvDataForBatch } from '@/utils/csvBatchProcessing'
 import {
-  buildPrintDetails,
+  buildPrintSheetContent,
   getPrintableBackground,
   type PrintSheetPayload
 } from '@/utils/printDetails'
@@ -877,6 +877,7 @@ function buildImageExportInput() {
 //#region /* Print */
 const includePrintDetails = ref(true)
 const printSheetPayload = ref<PrintSheetPayload | null>(null)
+const printSheet = ref<InstanceType<typeof QRCodePrintSheet> | null>(null)
 
 // Printing is a single-page action: batch export has its own ZIP flow.
 const isPrintButtonDisabled = computed(
@@ -892,8 +893,13 @@ const printButtonTitle = computed(() => {
 /**
  * Renders the same SVG that "Download SVG" produces — frame, caption and logo
  * included — shows it in the print sheet and opens the browser print dialog.
- * Reusing the export pipeline means every supported data type prints exactly
- * as previewed, without a second rendering path to keep in sync.
+ * Reusing the export pipeline means every supported datatype prints exactly as
+ * previewed, without a second rendering path to keep in sync.
+ *
+ * The order matters: the dialog is opened only once the sheet component has
+ * mounted the SVG and settled its images/fonts. Browsers snapshot the document
+ * when `print()` is called, so printing earlier yields a sheet with an empty
+ * art area — a page with the details but no QR code.
  */
 async function printQRCode() {
   if (isPrintButtonDisabled.value) return
@@ -901,18 +907,21 @@ async function printQRCode() {
   try {
     printSheetPayload.value = {
       svg: await getInlinedSvgString(buildSvgExportInput()),
-      details: includePrintDetails.value
-        ? buildPrintDetails({
+      ...(includePrintDetails.value
+        ? buildPrintSheetContent({
             data: data.value,
             frameText: showFrame.value ? frameText.value : '',
             t
           })
-        : [],
+        : { details: [] }),
       background: getPrintableBackground(styleBackground.value),
       title: exportFilename.value || 'qr-code'
     }
-    // Flush the sheet into the DOM before the dialog snapshots the page.
+
+    // Flush the sheet into the DOM, then let it finish rendering the code.
     await nextTick()
+    await printSheet.value?.renderArt()
+
     window.print()
   } catch (error) {
     console.error('Error printing QR code:', error)
@@ -2914,7 +2923,7 @@ const updateDataFromModal = (newData: string) => {
     Lives outside the settings column (it teleports to <body>) because the
     print stylesheet hides every other body child while printing.
   -->
-  <QRCodePrintSheet :payload="printSheetPayload" @done="clearPrintSheet" />
+  <QRCodePrintSheet ref="printSheet" :payload="printSheetPayload" @done="clearPrintSheet" />
 </template>
 
 <style scoped>

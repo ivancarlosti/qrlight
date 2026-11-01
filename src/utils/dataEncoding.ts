@@ -144,6 +144,14 @@ export const generateSmsData = (data: { phone: string; message?: string }): stri
  */
 export type WifiEncryption = 'nopass' | 'WEP' | 'WPA' | 'SAE'
 
+/** A WiFi payload split into the fields a person types in to join. */
+export interface ParsedWifiPayload {
+  ssid: string
+  password: string
+  encryption: WifiEncryption
+  hidden: boolean
+}
+
 /**
  * Maps a raw `T:` value from a scanned WiFi payload onto a supported
  * `WifiEncryption`. Aliases (`WPA2`, `WPA3`, `WPA2-EAP`…) and mixed casing
@@ -194,6 +202,84 @@ export const generateWifiData = (data: {
     const password = escapeWiFi(data.password || '')
     return `WIFI:T:${encryption};S:${ssid};P:${password};${hidden};`
   }
+}
+
+/**
+ * Splits a `WIFI:` payload back into its fields.
+ *
+ * `generateWifiData` escapes `\ ; , : " '` inside values, so this walks the
+ * payload honouring backslash escapes instead of splitting on every `;` — the
+ * `S:([^;]*);` style regex used elsewhere truncates an SSID such as
+ * `Cafe\;Bar` at the first escaped separator. Returns `null` when the payload
+ * is not a WiFi one at all.
+ *
+ * @param data - Raw payload, usually straight out of the data input
+ * @returns The SSID, password, normalized security mode and hidden flag
+ */
+export const parseWifiPayload = (data: string | undefined | null): ParsedWifiPayload | null => {
+  const payload = (data || '').trim()
+  const prefix = /^WIFI:/i.exec(payload)
+  if (!prefix) return null
+
+  // Tokenize into `KEY:value` fields, resolving escapes as we go.
+  const fields: string[] = []
+  let current = ''
+  for (let i = prefix[0].length; i < payload.length; i++) {
+    const char = payload[i]
+    if (char === '\\') {
+      const escaped = payload[i + 1]
+      // A trailing backslash is literal; otherwise keep the escaped character
+      // and let it never terminate the field.
+      if (escaped === undefined) {
+        current += char
+      } else {
+        current += escaped
+        i += 1
+      }
+      continue
+    }
+    if (char === ';') {
+      fields.push(current)
+      current = ''
+      continue
+    }
+    current += char
+  }
+  if (current) fields.push(current)
+
+  const parsed: ParsedWifiPayload = {
+    ssid: '',
+    password: '',
+    encryption: 'nopass',
+    hidden: false
+  }
+
+  for (const field of fields) {
+    const separator = field.indexOf(':')
+    if (separator <= 0) continue
+
+    const key = field.slice(0, separator).trim().toUpperCase()
+    const value = field.slice(separator + 1)
+
+    switch (key) {
+      case 'S':
+        parsed.ssid = value
+        break
+      case 'P':
+        parsed.password = value
+        break
+      case 'T':
+        parsed.encryption = normalizeWifiEncryption(value)
+        break
+      case 'H':
+        parsed.hidden = value.trim().toLowerCase() === 'true'
+        break
+      default:
+        break
+    }
+  }
+
+  return parsed
 }
 
 /**

@@ -71,6 +71,79 @@
     line-height: 1.35;
   }
 
+  /* Wi-Fi handout: the credentials a visitor types in, boxed so the code and
+     the fields read as one card. */
+  #qr-print-sheet.qr-print-sheet--wifi {
+    gap: 8mm;
+  }
+
+  /* The card takes roughly 40mm at the bottom, so shrink the code a little to
+     keep the sheet on a single A4/Letter page. */
+  #qr-print-sheet.qr-print-sheet--wifi .qr-print-sheet__art {
+    width: 120mm;
+  }
+
+  #qr-print-sheet .qr-print-sheet__wifi {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 140mm;
+    padding: 6mm 8mm;
+    border: 1px solid #d4d4d8;
+    border-radius: 4mm;
+    /* Paper is not a scroll container: never split the credentials. */
+    break-inside: avoid;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    color: #000000;
+  }
+
+  /* Same width as the shrunken code above, so the card reads as its base. */
+  #qr-print-sheet.qr-print-sheet--wifi .qr-print-sheet__wifi {
+    max-width: 120mm;
+  }
+
+  #qr-print-sheet .qr-print-sheet__wifi-title {
+    margin: 0 0 4mm;
+    text-align: center;
+    font-size: 13pt;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  #qr-print-sheet .qr-print-sheet__wifi-row {
+    display: flex;
+    gap: 4mm;
+    align-items: baseline;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  #qr-print-sheet .qr-print-sheet__wifi-label {
+    flex: 0 0 42mm;
+    font-weight: 600;
+  }
+
+  #qr-print-sheet .qr-print-sheet__wifi-value {
+    /* Long SSIDs and passwords must wrap instead of running off the page. */
+    flex: 1 1 auto;
+    overflow-wrap: anywhere;
+  }
+
+  /* The password is the one field a visitor has to copy letter by letter. */
+  #qr-print-sheet .qr-print-sheet__wifi-value--emphasis {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 16pt;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
   #qr-print-sheet .qr-print-sheet__row {
     display: flex;
     gap: 2mm;

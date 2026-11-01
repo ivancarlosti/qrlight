@@ -3,6 +3,7 @@ import { test, expect, type Page } from '@playwright/test'
 declare global {
   interface Window {
     printCallCount: number
+    qrPresentInSheetAtPrint: boolean
   }
 }
 
@@ -17,8 +18,14 @@ test.describe('Print QR Code', () => {
     // the calls instead so the sheet stays in the DOM for assertions.
     await page.addInitScript(() => {
       window.printCallCount = 0
+      window.qrPresentInSheetAtPrint = false
       window.print = () => {
         window.printCallCount += 1
+        // Browsers snapshot the document when print() is called, so the sheet
+        // must already contain the code at this exact moment.
+        window.qrPresentInSheetAtPrint = Boolean(
+          document.querySelector('#qr-print-sheet .qr-print-sheet__art svg')
+        )
       }
     })
     await page.goto('/')
@@ -52,6 +59,41 @@ test.describe('Print QR Code', () => {
     expect(await page.evaluate(() => window.printCallCount)).toBe(1)
   })
 
+  test('has the code mounted before the print dialog opens', async ({ page }) => {
+    await page.locator('#data').fill('https://example.com/qr')
+    await triggerPrint(page)
+
+    // Regression: the SVG used to be appended after window.print(), so engines
+    // that snapshot the document synchronously printed a blank art area.
+    expect(await page.evaluate(() => window.qrPresentInSheetAtPrint)).toBe(true)
+  })
+
+  test('prints Wi-Fi credentials instead of the raw payload', async ({ page }) => {
+    await page.locator('#data').fill('WIFI:T:WPA;S:CafeGuest;P:welcome123;;')
+    await triggerPrint(page)
+
+    const sheet = printSheet(page)
+    await expect(sheet.locator('.qr-print-sheet__art svg')).toHaveCount(1)
+    await expect(sheet.locator('.qr-print-sheet__wifi')).toHaveCount(1)
+    await expect(sheet).toContainText('Scan to join the Wi-Fi')
+    await expect(sheet).toContainText('Network Name (SSID)')
+    await expect(sheet).toContainText('CafeGuest')
+    await expect(sheet).toContainText('welcome123')
+    await expect(sheet).toContainText('WPA/WPA2/WPA3')
+    await expect(sheet).not.toContainText('WIFI:T:WPA')
+    expect(await page.evaluate(() => window.qrPresentInSheetAtPrint)).toBe(true)
+  })
+
+  test('keeps the Wi-Fi card visible when printing', async ({ page }) => {
+    await page.locator('#data').fill('WIFI:T:nopass;S:GuestNet;;;')
+    await triggerPrint(page)
+
+    await page.emulateMedia({ media: 'print' })
+    await expect(printSheet(page).locator('.qr-print-sheet__wifi')).toBeVisible()
+    await expect(printSheet(page)).toContainText('GuestNet')
+    await expect(printSheet(page)).toContainText('No encryption')
+  })
+
   test('omits the details block when the checkbox is cleared', async ({ page }) => {
     await page.locator('#data').fill('https://example.com/qr')
     await page.locator('#include-print-details').uncheck()
@@ -60,6 +102,16 @@ test.describe('Print QR Code', () => {
     const sheet = printSheet(page)
     await expect(sheet.locator('.qr-print-sheet__art svg')).toHaveCount(1)
     await expect(sheet.locator('.qr-print-sheet__details')).toHaveCount(0)
+  })
+
+  test('omits the Wi-Fi card when the checkbox is cleared', async ({ page }) => {
+    await page.locator('#data').fill('WIFI:T:WPA;S:CafeGuest;P:welcome123;;')
+    await page.locator('#include-print-details').uncheck()
+    await triggerPrint(page)
+
+    const sheet = printSheet(page)
+    await expect(sheet.locator('.qr-print-sheet__art svg')).toHaveCount(1)
+    await expect(sheet.locator('.qr-print-sheet__wifi')).toHaveCount(0)
   })
 
   test('prints the frame caption with a framed code', async ({ page }) => {
