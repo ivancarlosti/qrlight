@@ -58,7 +58,9 @@ Screenshots live in `docs/screenshots/` and are generated with `pnpm screenshots
 ## Getting started
 
 Requirements: Node.js 22.12 or newer (Node 26 LTS recommended, see
-`.tool-versions`) and [pnpm](https://pnpm.io) 10.
+`.tool-versions`) and [pnpm](https://pnpm.io) 12. pnpm settings (dependency
+overrides, build approvals, audit exceptions) live in `pnpm-workspace.yaml`;
+`package.json` only pins the manager version through `packageManager`.
 
 ```bash
 pnpm install
@@ -85,8 +87,9 @@ any dependency bump; a stale lockfile is how the previous `source-map-js`
 advisory (GHSA-68fv-2mgg-jv7q) survived two copies of the package, one of them
 vulnerable, for several releases.
 
-Four transitive packages are pinned with `pnpm.overrides` because the packages
-consuming them still declare ranges that resolve below the patched release:
+Four transitive packages are pinned with `overrides` in `pnpm-workspace.yaml`
+because the packages consuming them still declare ranges that resolve below the
+patched release:
 
 | Override                                                     | Reason                                                                                                 |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
@@ -101,10 +104,25 @@ Every override is build-time only; nothing here reaches the bundled application.
 low, prototype pollution) has no patched release — the advisory lists the patched
 range as `<0.0.0`. It is reachable only through
 `vite-plugin-pwa → workbox-build → @rollup/plugin-node-resolve`, i.e. during
-`pnpm build`, from data the project controls. It is listed in `auditConfig.ignoreCves`
-so `pnpm audit` keeps reporting real regressions; drop the entry once
-`@rollup/plugin-node-resolve` no longer depends on `deepmerge`, or a fixed release
-ships.
+`pnpm build`, from data the project controls. It is listed under `audit.ignore`
+in `pnpm-workspace.yaml` so `pnpm audit` keeps reporting real regressions; drop
+the entry once `@rollup/plugin-node-resolve` no longer depends on `deepmerge`, or
+a fixed release ships.
+
+**New releases are quarantined for a day.** pnpm 12 refuses to install a version
+published less than 24 hours ago, including versions already recorded in the
+lockfile, which stops a compromised release from reaching a machine before the
+registry pulls it. A dependency bump may therefore need a day before
+`pnpm install` accepts it. Versions vetted in the current lockfile are exempted
+by exact version in `minimumReleaseAgeExclude`; `minimumReleaseAgeExcludePrune`
+removes each entry once the lockfile stops resolving it, so the list empties
+itself. Do not replace those entries with name patterns — that would exempt the
+package from the quarantine permanently.
+
+**Lockfile format.** pnpm 12 writes `pnpm-lock.yaml` as two YAML documents: the
+first holds only the pnpm version, the second the dependency graph. A scanner or
+SBOM tool that reads just the first document reports zero dependencies and zero
+vulnerabilities instead of failing, so check the tool before trusting its output.
 
 **TypeScript stays on 6.x on purpose.** `typescript@7` is the native (Go)
 compiler: its package no longer contains the classic `lib/typescript.js` API, only

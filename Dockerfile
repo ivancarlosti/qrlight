@@ -11,14 +11,18 @@ FROM node:26-alpine AS builder
 WORKDIR /app
 
 # The application source is vendored in this repository, so nothing is cloned
-# from upstream at build time. pnpm is pinned to the major that produced
-# pnpm-lock.yaml; Node 26 no longer bundles Corepack, so it is installed
-# explicitly.
-RUN npm install -g pnpm@10
+# from upstream at build time. pnpm is pinned to the exact version that produced
+# pnpm-lock.yaml, because pnpm 12 records its own version inside the lockfile and
+# `--frozen-lockfile` rejects a mismatch. Bump this line, `packageManager` in
+# package.json and the lockfile together; Node 26 no longer bundles Corepack, so
+# pnpm is installed explicitly.
+RUN npm install -g pnpm@12.16.1
 
 # Dependencies first, so the install layer is reused while only app code
-# changes.
-COPY package.json pnpm-lock.yaml .npmrc ./
+# changes. pnpm-workspace.yaml has to be present before `pnpm install`: since
+# pnpm 11 it holds the overrides, build approvals and audit exceptions, not
+# package.json.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .

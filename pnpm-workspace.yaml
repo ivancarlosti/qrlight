@@ -1,0 +1,83 @@
+# pnpm settings for this single-package repository.
+#
+# pnpm >= 11 no longer reads the `pnpm` field of package.json: overrides, build
+# approvals and audit exceptions live here. `packages` is deliberately omitted,
+# which makes this a workspace containing only the root package.
+#
+# Keep this file in sync with `packageManager` in package.json and with the
+# `npm install -g pnpm@...` line in the Dockerfile: a mismatched pnpm rewrites
+# pnpm-lock.yaml and breaks `pnpm install --frozen-lockfile`.
+
+# pnpm 12 refuses to install a version published less than 24 hours ago (default
+# `minimumReleaseAge: 1440`), including entries already present in the lockfile.
+# Keep that quarantine, and exempt only the exact versions that were vetted when
+# this lockfile was written. `minimumReleaseAgeExcludePrune` then drops each
+# entry automatically once the lockfile stops resolving it, so this list empties
+# itself instead of turning into a permanent allow-list.
+minimumReleaseAgeExcludePrune: true
+minimumReleaseAgeExclude:
+  - '@intlify/core-base@11.4.17'
+  - '@intlify/devtools-types@11.4.17'
+  - '@intlify/message-compiler@11.4.17'
+  - '@intlify/shared@11.4.17'
+  - vue-i18n@11.4.17
+  - '@tanstack/virtual-core@3.19.10'
+  - '@tanstack/vue-virtual@3.13.51'
+  - tinybench@6.2.3
+  - rollup@4.67.4
+  - '@rollup/rollup-android-arm-eabi@4.67.4'
+  - '@rollup/rollup-android-arm64@4.67.4'
+  - '@rollup/rollup-android-x64@4.67.4'
+  - '@rollup/rollup-darwin-arm64@4.67.4'
+  - '@rollup/rollup-darwin-x64@4.67.4'
+  - '@rollup/rollup-freebsd-arm64@4.67.4'
+  - '@rollup/rollup-freebsd-x64@4.67.4'
+  - '@rollup/rollup-linux-arm-gnueabihf@4.67.4'
+  - '@rollup/rollup-linux-arm-musleabihf@4.67.4'
+  - '@rollup/rollup-linux-arm64-gnu@4.67.4'
+  - '@rollup/rollup-linux-arm64-musl@4.67.4'
+  - '@rollup/rollup-linux-loong64-gnu@4.67.4'
+  - '@rollup/rollup-linux-loong64-musl@4.67.4'
+  - '@rollup/rollup-linux-ppc64-gnu@4.67.4'
+  - '@rollup/rollup-linux-ppc64-musl@4.67.4'
+  - '@rollup/rollup-linux-riscv64-gnu@4.67.4'
+  - '@rollup/rollup-linux-riscv64-musl@4.67.4'
+  - '@rollup/rollup-linux-s390x-gnu@4.67.4'
+  - '@rollup/rollup-linux-x64-gnu@4.67.4'
+  - '@rollup/rollup-linux-x64-musl@4.67.4'
+  - '@rollup/rollup-openbsd-x64@4.67.4'
+  - '@rollup/rollup-openharmony-arm64@4.67.4'
+  - '@rollup/rollup-win32-arm64-msvc@4.67.4'
+  - '@rollup/rollup-win32-ia32-msvc@4.67.4'
+  - '@rollup/rollup-win32-x64-gnu@4.67.4'
+  - '@rollup/rollup-win32-x64-msvc@4.67.4'
+
+# Transitive packages whose parents still declare ranges that resolve below the
+# patched release. See "Dependency security" in README.md for the advisory IDs
+# and the condition for removing each one.
+overrides:
+  source-map-js: ^1.2.2
+  minimatch: ^11.0.3
+  glob@>=11: ^14.0.3
+  '@tailwindcss/typography>postcss-selector-parser': ^6.1.5
+
+# The only dependencies allowed to run install scripts. Everything else is
+# blocked, and `strictDepBuilds` (on by default) turns an unlisted build script
+# into an install error instead of a silent skip.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  vue-demi: true
+
+# `virtual:pwa-register` imports `workbox-window`, which is a dependency of
+# vite-plugin-pwa rather than of the app, so it has to be hoisted into
+# node_modules to be resolvable. Replaces the former .npmrc entry.
+publicHoistPattern:
+  - workbox-window
+
+# deepmerge@4.3.1 (GHSA-gcqx-w48m-w2h4 / CVE-2026-93753) has no patched release.
+# Build-time only, via vite-plugin-pwa > workbox-build > @rollup/plugin-node-resolve.
+# Remove this entry once @rollup/plugin-node-resolve drops deepmerge or a fix ships.
+audit:
+  ignore:
+    - GHSA-gcqx-w48m-w2h4
