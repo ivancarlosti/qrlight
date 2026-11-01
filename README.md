@@ -78,6 +78,41 @@ Other scripts:
 | `pnpm screenshots`          | Regenerates the README screenshots into `docs/screenshots/`                 |
 | `pnpm sync-i18n`            | Adds missing `t()` keys to `locales/en.json`                                |
 
+## Dependency security
+
+`pnpm audit` is clean apart from one accepted, documented advisory. Run it after
+any dependency bump; a stale lockfile is how the previous `source-map-js`
+advisory (GHSA-68fv-2mgg-jv7q) survived two copies of the package, one of them
+vulnerable, for several releases.
+
+Four transitive packages are pinned with `pnpm.overrides` because the packages
+consuming them still declare ranges that resolve below the patched release:
+
+| Override                                                     | Reason                                                                                                 |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `source-map-js` → `^1.2.2`                                   | GHSA-68fv-2mgg-jv7q (high) — patched in 1.2.2, but parents allowed `1.0.0` and the lockfile kept 1.2.1 |
+| `minimatch` → `^11.0.3`                                      | GHSA-g3hv-75wg-m249 (moderate) — `@typescript-eslint/typescript-estree` still allows `<11.0.1`         |
+| `glob@>=11` → `^14.0.3`                                      | GHSA-3g3m-2fjr-6pw4 (moderate) — `workbox-build` asks for `^11`, which is inside the vulnerable range  |
+| `@tailwindcss/typography>postcss-selector-parser` → `^6.1.5` | GHSA-rj75-hqrm-r3gf (moderate) — the plugin pins the vulnerable 6.x line; 7.x is not API compatible    |
+
+Every override is build-time only; nothing here reaches the bundled application.
+
+**Accepted advisory.** `deepmerge@4.3.1` (GHSA-gcqx-w48m-w2h4 / CVE-2026-93753,
+low, prototype pollution) has no patched release — the advisory lists the patched
+range as `<0.0.0`. It is reachable only through
+`vite-plugin-pwa → workbox-build → @rollup/plugin-node-resolve`, i.e. during
+`pnpm build`, from data the project controls. It is listed in `auditConfig.ignoreCves`
+so `pnpm audit` keeps reporting real regressions; drop the entry once
+`@rollup/plugin-node-resolve` no longer depends on `deepmerge`, or a fixed release
+ships.
+
+**TypeScript stays on 6.x on purpose.** `typescript@7` is the native (Go)
+compiler: its package no longer contains the classic `lib/typescript.js` API, only
+`lib/version.cjs`, `lib/tsc.js` and an `unstable/*` surface. `typescript-eslint@8`
+(everything `pnpm lint` and `pnpm type-check` are built on) consumes that classic
+API, so 7.x breaks linting and type checking. Bump when `typescript-eslint` and
+`vue-tsc` support the native compiler.
+
 ## Printing
 
 The **Print** button lives in the _Export QR code_ section, next to PNG/JPG/SVG/TXT.
