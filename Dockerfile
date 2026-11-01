@@ -10,35 +10,29 @@
 FROM node:26-alpine AS builder
 WORKDIR /app
 
-# Install git so we can clone the repo
-RUN apk add --no-cache git
+# The application source is vendored in this repository, so nothing is cloned
+# from upstream at build time. pnpm is pinned to the major that produced
+# pnpm-lock.yaml; Node 26 no longer bundles Corepack, so it is installed
+# explicitly.
+RUN npm install -g pnpm@10
 
-# Copy the control file to /tmp so /app remains empty for git clone
-COPY mini-qr-version.txt /tmp/mini-qr-version.txt
+# Dependencies first, so the install layer is reused while only app code
+# changes.
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN pnpm install --frozen-lockfile
 
-# Clone the specific version of the repository
-RUN VERSION=$(cat /tmp/mini-qr-version.txt) && \
-  if [ "$VERSION" = "main" ] || [ -z "$VERSION" ]; then \
-  git clone --depth 1 https://github.com/lyqht/mini-qr.git .; \
-  else \
-  git clone --branch "$VERSION" --depth 1 https://github.com/lyqht/mini-qr.git .; \
-  fi
+COPY . .
 
-# Overwrite the GitHub link and the app title with user's specific text
-RUN find src -type f -exec sed -i 's|https://github.com/lyqht/mini-qr|https://github.com/ivancarlosti/qrlight|g' {} + && \
-  sed -i 's/Mini QR Code Generator/QRLight/g' index.html && \
-  find locales -type f -name "*.json" -exec sed -i 's/Mini QR Code Generator/QRLight/g' {} + && \
-  find locales -type f -name "*.json" -exec sed -i 's/Mini QR/QRLight/g' {} + && \
-  find src -type f \( -name "*.vue" -o -name "*.ts" \) -exec sed -i 's/MiniQR/QRLight/g' {} +
-
-# Set custom variables to be baked into the image
+# QRLight defaults baked into the static build. VITE_APP_VERSION is the tag
+# this image was built from (build.yml passes VERSION), shown in the footer
+# instead of the vendored upstream CHANGELOG version.
+ARG VERSION=dev
+ENV VITE_APP_VERSION=${VERSION}
 ENV VITE_DEFAULT_PRESET=Plain
 ENV VITE_HIDE_CREDITS=true
 ENV VITE_DISABLE_LOCAL_STORAGE=true
 
-# Install dependencies and build the app
-RUN npm install
-RUN npm run build
+RUN pnpm build
 
 # Production stage
 FROM node:26-alpine AS production
@@ -53,13 +47,12 @@ LABEL org.opencontainers.image.title="QRLight" \
       org.opencontainers.image.revision="${COMMIT}" \
       org.opencontainers.image.source="https://github.com/ivancarlosti/qrlight"
 
+# Install the server to serve the static assets
+RUN npm install -g serve@14
+
 # Copy the built assets from the builder stage
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./
 
-# Install the server to serve the static assets
-RUN npm install -g serve
 EXPOSE 8080
 
 # Serve the app

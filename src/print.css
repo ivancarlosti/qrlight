@@ -1,0 +1,96 @@
+/*
+ * Print styles for the "Print" export.
+ *
+ * `QRCodePrintSheet.vue` teleports a `<section id="qr-print-sheet">` straight
+ * into `<body>`, so this stylesheet can blank out the whole application
+ * (including every reka-ui portal — dialogs, drawers, popovers, toasts) with a
+ * single sibling selector instead of guessing at each overlay's class names.
+ */
+
+/* On screen the sheet never renders: it only exists while printing. */
+#qr-print-sheet {
+  display: none;
+}
+
+@media print {
+  /* Nothing but the sheet reaches the paper. */
+  body > *:not(#qr-print-sheet) {
+    display: none !important;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  #qr-print-sheet {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6mm;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12mm;
+    color: #000000;
+    /* Keep the configured dot/frame colours instead of the printer's guess. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 140mm leaves room for the 12mm margins and the details block on A4/Letter. */
+  #qr-print-sheet .qr-print-sheet__art {
+    display: flex;
+    justify-content: center;
+    width: 140mm;
+    max-width: 100%;
+  }
+
+  #qr-print-sheet .qr-print-sheet__art > svg,
+  #qr-print-sheet .qr-print-sheet__art > img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  #qr-print-sheet .qr-print-sheet__details {
+    display: flex;
+    flex-direction: column;
+    gap: 1mm;
+    width: 100%;
+    max-width: 140mm;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    font-size: 10pt;
+    line-height: 1.35;
+  }
+
+  #qr-print-sheet .qr-print-sheet__row {
+    display: flex;
+    gap: 2mm;
+    align-items: baseline;
+  }
+
+  #qr-print-sheet .qr-print-sheet__label {
+    flex: 0 0 auto;
+    min-width: 22mm;
+    font-weight: 600;
+  }
+
+  #qr-print-sheet .qr-print-sheet__value {
+    /* Long payloads must wrap instead of running off the page. */
+    flex: 1 1 auto;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
