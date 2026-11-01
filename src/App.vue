@@ -88,7 +88,7 @@ const isModeToggleDisabled = computed(() => {
         >
           <button
             :class="[
-              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200 md:gap-2 md:px-3 md:py-1.5 md:text-base',
+              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-hidden transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 md:gap-2 md:px-3 md:py-1.5 md:text-base dark:focus-visible:ring-zinc-200',
               appMode === AppMode.Create
                 ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
                 : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
@@ -107,7 +107,7 @@ const isModeToggleDisabled = computed(() => {
           </button>
           <button
             :class="[
-              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200 md:gap-2 md:px-3 md:py-1.5 md:text-base',
+              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-hidden transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 md:gap-2 md:px-3 md:py-1.5 md:text-base dark:focus-visible:ring-zinc-200',
               appMode === AppMode.Scan
                 ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
                 : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
@@ -197,7 +197,7 @@ const isModeToggleDisabled = computed(() => {
         >
           <button
             :class="[
-              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200',
+              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-hidden transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200',
               appMode === AppMode.Create
                 ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
                 : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100',
@@ -222,7 +222,7 @@ const isModeToggleDisabled = computed(() => {
           </button>
           <button
             :class="[
-              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200',
+              'flex items-center gap-1 rounded-md px-2 py-1 text-sm outline-hidden transition-colors focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200',
               appMode === AppMode.Scan
                 ? 'bg-white text-zinc-900 shadow dark:bg-zinc-700 dark:text-zinc-100'
                 : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100',
@@ -257,7 +257,7 @@ const isModeToggleDisabled = computed(() => {
     </div>
 
     <div
-      class="relative grid min-h-screen place-items-center items-start bg-white p-8 pt-16 dark:bg-zinc-900 md:px-6 md:pb-6 md:pt-4"
+      class="relative grid min-h-screen place-items-center items-start bg-white p-8 pt-16 md:px-6 md:pt-4 md:pb-6 dark:bg-zinc-900"
     >
       <!-- Main content area with conditional rendering based on app mode -->
       <div class="w-full lg:w-5/6">
@@ -274,20 +274,23 @@ const isModeToggleDisabled = computed(() => {
 </template>
 
 <style lang="postcss" scoped>
+/* Tailwind v4: `@apply` needs a reference to the stylesheet defining the theme. */
+@reference './index.css';
+
 .vertical-border {
   @apply h-8 w-1 bg-slate-300 dark:bg-slate-700;
 }
 
 .icon-button {
   @apply p-1;
-  @apply rounded-sm outline-none hover:shadow focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200;
+  @apply rounded-sm outline-hidden hover:shadow focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200;
   @apply text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100;
 }
 
 .button {
   @apply bg-zinc-100 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-200;
   @apply rounded-lg p-2 shadow-sm hover:shadow focus-visible:shadow-md;
-  @apply outline-none focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200;
+  @apply outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200;
   @apply disabled:cursor-not-allowed disabled:opacity-50;
 }
 

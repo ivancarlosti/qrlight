@@ -324,7 +324,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="relative mx-auto w-full max-w-[500px]">
+  <div class="relative mx-auto w-full max-w-125">
     <div v-if="capturedData" class="capture-result">
       <p class="mb-4 text-xl font-semibold">{{ t('QR Code Content') }}</p>
 
@@ -415,7 +415,7 @@ defineExpose({
 
           <button
             :class="[
-              'outline-none focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200',
+              'outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-700 dark:focus-visible:ring-zinc-200',
               'flex w-full cursor-pointer items-center justify-center rounded-lg border-2 border-dashed p-4 py-6 text-center transition-colors',
               isDraggingOver
                 ? 'border-blue-400 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/20'
@@ -463,7 +463,7 @@ defineExpose({
             <div class="flex w-full flex-col gap-2 sm:flex-row sm:items-stretch">
               <!-- Camera option -->
               <button
-                class="z-40 flex w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-zinc-100 px-4 py-2 outline-none transition-colors hover:bg-zinc-200 focus-visible:ring-1 focus-visible:ring-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:focus-visible:ring-zinc-200 sm:w-auto sm:flex-1"
+                class="z-40 flex w-full min-w-0 items-center justify-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 whitespace-nowrap outline-hidden transition-colors hover:bg-zinc-200 focus-visible:ring-1 focus-visible:ring-zinc-700 sm:w-auto sm:flex-1 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:focus-visible:ring-zinc-200"
                 @click="startCameraScanning"
                 type="button"
               >
@@ -478,7 +478,7 @@ defineExpose({
 
               <!-- Paste from clipboard option -->
               <button
-                class="z-40 flex w-full min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-zinc-100 px-4 py-2 outline-none transition-colors hover:bg-zinc-200 focus-visible:ring-1 focus-visible:ring-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:focus-visible:ring-zinc-200 sm:w-auto sm:flex-1"
+                class="z-40 flex w-full min-w-0 items-center justify-center gap-2 rounded-lg bg-zinc-100 px-4 py-2 whitespace-nowrap outline-hidden transition-colors hover:bg-zinc-200 focus-visible:ring-1 focus-visible:ring-zinc-700 sm:w-auto sm:flex-1 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:focus-visible:ring-zinc-200"
                 @click="pasteFromClipboard"
                 type="button"
                 v-if="IS_PASTE_IMAGE_FROM_CLIPBOARD_SUPPORTED"

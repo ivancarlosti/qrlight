@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type HTMLAttributes, computed } from 'vue'
-import type { ComboboxRootEmits, ComboboxRootProps } from 'radix-vue'
-import { ComboboxRoot, useForwardPropsEmits } from 'radix-vue'
+import type { ComboboxRootEmits, ComboboxRootProps } from 'reka-ui'
+import { ComboboxRoot, useForwardPropsEmits } from 'reka-ui'
 import { cn } from '@/lib/utils'
 
 const props = withDefaults(defineProps<ComboboxRootProps & { class?: HTMLAttributes['class'] }>(), {
@@ -25,7 +25,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     v-bind="forwarded"
     :class="
       cn(
-        'flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
+        'flex size-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground',
         props.class
       )
     "

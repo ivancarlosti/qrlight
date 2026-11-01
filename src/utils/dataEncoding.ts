@@ -578,16 +578,7 @@ export const detectDataType = (
   // Default result
   const result: {
     type:
-      | 'text'
-      | 'url'
-      | 'email'
-      | 'phone'
-      | 'sms'
-      | 'wifi'
-      | 'vcard'
-      | 'location'
-      | 'event'
-      | 'epc'
+      'text' | 'url' | 'email' | 'phone' | 'sms' | 'wifi' | 'vcard' | 'location' | 'event' | 'epc'
     parsedData: Record<string, string | boolean>
   } = {
     type: 'text',

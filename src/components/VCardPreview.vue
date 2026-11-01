@@ -15,7 +15,7 @@ const address = [
 </script>
 <template>
   <div
-    class="mx-auto flex w-full flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg md:max-w-xs"
+    class="mx-auto flex w-full flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 shadow-md md:max-w-xs dark:border-gray-700 dark:bg-gray-800 dark:shadow-lg"
   >
     <div class="mb-2">
       <p class="truncate text-xl font-bold text-gray-800 dark:text-gray-100">

@@ -59,7 +59,7 @@ defineProps<{
               >
                 {{ item.label }}
                 <Check
-                  :class="cn('ms-auto h-4 w-4', value === item.value ? 'opacity-100' : 'opacity-0')"
+                  :class="cn('ms-auto size-4', value === item.value ? 'opacity-100' : 'opacity-0')"
                 />
               </CommandItem>
               <div

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type HTMLAttributes, computed } from 'vue'
-import type { ComboboxGroupProps } from 'radix-vue'
-import { ComboboxGroup, ComboboxLabel } from 'radix-vue'
+import type { ComboboxGroupProps } from 'reka-ui'
+import { ComboboxGroup, ComboboxLabel } from 'reka-ui'
 import { cn } from '@/lib/utils'
 
 const props = defineProps<
@@ -23,7 +23,7 @@ const delegatedProps = computed(() => {
     v-bind="delegatedProps"
     :class="
       cn(
-        'overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground',
+        'overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground',
         props.class
       )
     "

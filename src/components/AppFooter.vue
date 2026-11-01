@@ -54,7 +54,7 @@ onMounted(() => {
 <template>
   <footer
     v-if="!hideCredits"
-    class="fixed inset-x-0 bottom-0 hidden p-4 text-sm text-zinc-600 dark:text-zinc-400 md:flex md:justify-center"
+    class="fixed inset-x-0 bottom-0 hidden p-4 text-sm text-zinc-600 md:flex md:justify-center dark:text-zinc-400"
   >
     <div class="flex items-center gap-2">
       <span>{{ t('Created by') }}</span>
@@ -90,7 +90,7 @@ onMounted(() => {
             {{ isLoading ? '...' : version }}
             <span
               v-if="hasUnseenChangelog"
-              class="absolute -right-1 -top-1 block size-2.5 rounded-full bg-[#abcbca] ring-2 ring-white dark:ring-zinc-800"
+              class="absolute -top-1 -right-1 block size-2.5 rounded-full bg-[#abcbca] ring-2 ring-white dark:ring-zinc-800"
               aria-hidden="true"
             ></span>
           </button>
@@ -99,7 +99,7 @@ onMounted(() => {
           <DialogHeader>
             <DialogTitle>{{ t('Changelog') }}</DialogTitle>
             <DialogClose
-              class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+              class="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
             >
               <X class="size-4" />
               <span class="sr-only">{{ t('Close') }}</span>

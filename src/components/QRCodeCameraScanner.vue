@@ -157,7 +157,7 @@ defineExpose({
       <div :id="scannerContainerId" class="mx-auto w-full max-w-md"></div>
 
       <!-- Control buttons -->
-      <div v-if="isScanning" class="absolute end-2 top-2 flex gap-2">
+      <div v-if="isScanning" class="absolute inset-e-2 top-2 flex gap-2">
         <!-- Switch Camera button - only show if multiple cameras are available -->
         <button
           v-if="hasMultipleCameras"
@@ -199,6 +199,9 @@ defineExpose({
 </template>
 
 <style scoped>
+/* Tailwind v4: `@apply` needs a reference to the stylesheet defining the theme. */
+@reference '../index.css';
+
 .camera-scanner {
   width: 100%;
   position: relative;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { PopoverAnchorProps } from 'radix-vue'
-import { PopoverAnchor } from 'radix-vue'
+import type { PopoverAnchorProps } from 'reka-ui'
+import { PopoverAnchor } from 'reka-ui'
 
 const props = defineProps<PopoverAnchorProps>()
 </script>

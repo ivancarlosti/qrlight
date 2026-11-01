@@ -133,7 +133,7 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
     <button
       ref="accordionHeader"
       @click="isExpanded = !isExpanded"
-      class="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/70 sm:px-4"
+      class="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-zinc-100 sm:px-4 dark:hover:bg-zinc-800/70"
       :class="isExpanded ? 'rounded-t-lg border-b-0' : 'rounded-lg'"
     >
       <div class="flex items-center gap-2">
@@ -174,14 +174,14 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
     <!-- Accordion content -->
     <div
       v-if="isExpanded"
-      class="w-full space-y-4 border-t border-zinc-200 py-4 dark:border-zinc-700 sm:px-4"
+      class="w-full space-y-4 border-t border-zinc-200 py-4 sm:px-4 dark:border-zinc-700"
     >
       <!-- Tab buttons -->
       <div class="flex gap-1 border-b">
         <button
           @click="activeTab = 'simple'"
           :class="[
-            'flex-1 p-2 text-xs font-medium transition-colors sm:flex-none sm:whitespace-nowrap sm:px-4 sm:text-sm',
+            'flex-1 p-2 text-xs font-medium transition-colors sm:flex-none sm:px-4 sm:text-sm sm:whitespace-nowrap',
             activeTab === 'simple'
               ? 'border-b-2 border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100'
               : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
@@ -192,7 +192,7 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
         <button
           @click="activeTab = 'vcard'"
           :class="[
-            'flex-1 p-2 text-xs font-medium transition-colors sm:flex-none sm:whitespace-nowrap sm:px-4 sm:text-sm',
+            'flex-1 p-2 text-xs font-medium transition-colors sm:flex-none sm:px-4 sm:text-sm sm:whitespace-nowrap',
             activeTab === 'vcard'
               ? 'border-b-2 border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100'
               : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
@@ -213,13 +213,13 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
               class="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2"
             >
               <code
-                class="block break-all rounded bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800 sm:inline-block sm:min-w-[100px] sm:break-normal sm:text-sm"
+                class="block rounded bg-zinc-100 px-2 py-1 text-xs break-all sm:inline-block sm:min-w-25 sm:text-sm sm:break-normal dark:bg-zinc-800"
                 :class="{ 'font-semibold': field.required }"
               >
                 {{ field.name }}
               </code>
               <span
-                class="break-words text-xs text-zinc-600 dark:text-zinc-400 sm:flex-1 sm:text-sm"
+                class="text-xs wrap-break-word text-zinc-600 sm:flex-1 sm:text-sm dark:text-zinc-400"
               >
                 {{ field.description }}
                 <span v-if="field.required" class="ms-1 text-red-500">*</span>
@@ -238,7 +238,7 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
         <div
           class="w-full rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
         >
-          <p class="break-words text-xs sm:text-sm">
+          <p class="text-xs wrap-break-word sm:text-sm">
             <strong>{{ t('Filename Priority') }}:</strong>
             {{
               t(
@@ -260,13 +260,13 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
               class="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2"
             >
               <code
-                class="block break-all rounded bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800 sm:inline-block sm:min-w-[120px] sm:break-normal sm:text-sm"
+                class="block rounded bg-zinc-100 px-2 py-1 text-xs break-all sm:inline-block sm:min-w-30 sm:text-sm sm:break-normal dark:bg-zinc-800"
                 :class="{ 'font-semibold': field.required }"
               >
                 {{ field.name }}
               </code>
               <span
-                class="break-words text-xs text-zinc-600 dark:text-zinc-400 sm:flex-1 sm:text-sm"
+                class="text-xs wrap-break-word text-zinc-600 sm:flex-1 sm:text-sm dark:text-zinc-400"
               >
                 {{ field.description }}
                 <span v-if="field.required" class="ms-1 text-red-500">*</span>
@@ -285,7 +285,7 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
         <div
           class="w-full rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20"
         >
-          <p class="break-words text-xs sm:text-sm">
+          <p class="text-xs wrap-break-word sm:text-sm">
             <strong>{{ t('Filename Priority') }}:</strong>
             {{
               t(
@@ -305,7 +305,7 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
               'simple_with_all_fields.csv'
             )
           "
-          class="inline-flex items-center justify-center gap-1 rounded-md bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-700 outline-none hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 sm:text-sm"
+          class="inline-flex items-center justify-center gap-1 rounded-md bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-700 outline-hidden hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-zinc-700 sm:text-sm dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -333,7 +333,7 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
               'vcard_with_all_fields.csv'
             )
           "
-          class="inline-flex items-center justify-center gap-1 rounded-md bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-700 outline-none hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 sm:text-sm"
+          class="inline-flex items-center justify-center gap-1 rounded-md bg-zinc-100 px-3 py-2 text-xs font-medium text-zinc-700 outline-hidden hover:bg-zinc-200 focus-visible:ring-2 focus-visible:ring-zinc-700 sm:text-sm dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

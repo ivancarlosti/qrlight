@@ -165,7 +165,7 @@ watch(
     <div class="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-lg dark:bg-zinc-900">
       <button
         type="button"
-        class="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
+        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
         @click="$emit('close')"
         :aria-label="t('Close')"
       >
@@ -214,13 +214,12 @@ watch(
             {{ t('Preview of first row') }}
           </p>
           <pre
-            class="max-h-[60vh] overflow-auto whitespace-pre rounded bg-white p-2 font-mono dark:bg-zinc-100 dark:text-zinc-900"
+            class="max-h-[60vh] overflow-auto rounded bg-white p-2 font-mono whitespace-pre dark:bg-zinc-100 dark:text-zinc-900"
             :style="{
               lineHeight: 1,
               fontSize: card.id === 'unicode-half' ? '10px' : '6px'
             }"
-            >{{ batchPreview(card.id) }}</pre
-          >
+            >{{ batchPreview(card.id) }}</pre>
           <div class="mt-2 flex flex-wrap gap-2">
             <template v-if="!isBatch">
               <button class="button text-sm" @click="onDownload(card.id, 'md')">

@@ -40,7 +40,8 @@ else is upstream's work.
 
 ## Getting started
 
-Requirements: Node.js 20 or newer and [pnpm](https://pnpm.io) 10.
+Requirements: Node.js 22.12 or newer (Node 26 LTS recommended, see
+`.tool-versions`) and [pnpm](https://pnpm.io) 10.
 
 ```bash
 pnpm install

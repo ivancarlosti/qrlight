@@ -400,7 +400,7 @@ const generateDataString = () => {
     return
   }
 
-  let generatedString = ''
+  let generatedString: string
   switch (selectedType.value) {
     case 'text':
       generatedString = generateTextData({ text: textData.value })
@@ -573,7 +573,7 @@ const closeModal = () => {
 
 <template>
   <div
-    class="fixed inset-0 z-[1000] flex items-start justify-center overflow-y-auto bg-black/40 pt-4 shadow-lg md:items-center md:pt-0"
+    class="fixed inset-0 z-1000 flex items-start justify-center overflow-y-auto bg-black/40 pt-4 shadow-lg md:items-center md:pt-0"
     v-if="showModal"
     role="dialog"
     aria-modal="true"
@@ -581,7 +581,7 @@ const closeModal = () => {
     @click.self="closeModal"
   >
     <div
-      class="relative mb-4 flex min-h-[200px] w-[90%] max-w-full flex-col rounded-lg bg-white p-8 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 md:mb-0 md:max-h-[85vh] md:max-w-[650px]"
+      class="relative mb-4 flex min-h-50 w-[90%] max-w-full flex-col rounded-lg bg-white p-8 text-zinc-900 md:mb-0 md:max-h-[85vh] md:max-w-[650px] dark:bg-zinc-900 dark:text-zinc-100"
     >
       <!-- Header -->
       <div class="-m-4 grid grid-cols-[auto_1fr_auto] items-center pb-8 md:grid-cols-3 md:pb-16">
@@ -656,7 +656,7 @@ const closeModal = () => {
       </div>
 
       <!-- data type specific inputs -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden py-4 pe-4 text-start">
+      <div class="flex-1 overflow-x-hidden overflow-y-auto py-4 pe-4 text-start">
         <!-- Required field indicator for reuse -->
         <span class="sr-only">{{ t('Required fields are marked with an asterisk (*)') }}</span>
 

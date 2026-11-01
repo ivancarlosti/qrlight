@@ -2,6 +2,7 @@ import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 import tailwind from 'eslint-plugin-tailwindcss'
+import storybook from 'eslint-plugin-storybook'
 import vueParser from 'vue-eslint-parser'
 import tsParser from '@typescript-eslint/parser'
 
@@ -16,15 +17,26 @@ export default [
       'pnpm-lock.yaml',
       'scripts/**',
       '*.json',
-      'storybook-static/**'
+      'storybook-static/**',
+      'coverage/**',
+      'test-results/**',
+      'playwright-report/**'
     ]
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...pluginVue.configs['flat/essential'],
-  ...tailwind.configs['flat/recommended'],
+  ...storybook.configs['flat/recommended'],
+  // Flat config since v4; reads the Tailwind v4 entry stylesheet below.
+  tailwind.configs.recommended,
   {
     files: ['**/*.vue', '**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    settings: {
+      tailwindcss: {
+        // Tailwind v4 has no JS config: the plugin resolves classes from the CSS.
+        cssConfigPath: './src/index.css'
+      }
+    },
     languageOptions: {
       parser: vueParser,
       parserOptions: {

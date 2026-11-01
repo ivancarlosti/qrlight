@@ -1413,7 +1413,7 @@ const updateDataFromModal = (newData: string) => {
     <Drawer v-else v-model:open="isMobileExportDrawerOpen">
       <DrawerTrigger
         id="drawer-preview-container"
-        class="fixed inset-x-0 bottom-0 z-10 rounded-t-lg border-t border-solid border-slate-300 bg-white shadow-2xl outline-none focus-visible:ring-1 focus-visible:ring-zinc-700 dark:bg-black dark:focus-visible:ring-zinc-200"
+        class="fixed inset-x-0 bottom-0 z-10 rounded-t-lg border-t border-solid border-slate-300 bg-white shadow-2xl outline-hidden focus-visible:ring-1 focus-visible:ring-zinc-700 dark:bg-black dark:focus-visible:ring-zinc-200"
       >
         <div class="flex flex-col items-center">
           <!-- Handle indicator for bottom sheet -->
@@ -1429,7 +1429,7 @@ const updateDataFromModal = (newData: string) => {
             <div
               :class="[
                 'flex items-center justify-center',
-                !showFrame && 'origin-center scale-[0.7] md:scale-100'
+                !showFrame && 'scale-0.7 origin-center md:scale-100'
               ]"
             >
               <FitScaleBox v-if="showFrame" :viewport-margin="32" :max-height="150">
@@ -1520,7 +1520,7 @@ const updateDataFromModal = (newData: string) => {
         <DrawerHeader>
           <DrawerTitle>{{ t('Export QR code') }}</DrawerTitle>
         </DrawerHeader>
-        <div class="overflow-y-auto overflow-x-hidden px-4 pb-4">
+        <div class="overflow-x-hidden overflow-y-auto px-4 pb-4">
           <div ref="mainContentContainer" id="main-content-container" class="w-full"></div>
         </div>
       </DrawerContent>
@@ -1675,7 +1675,7 @@ const updateDataFromModal = (newData: string) => {
             class="flex flex-col gap-4 rounded-lg border border-zinc-300 p-4 dark:border-zinc-700"
           >
             <h2
-              class="mx-auto -mt-[30px] bg-white px-4 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100"
+              class="mx-auto mt-[-30px] bg-white px-4 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100"
             >
               {{ t('Export QR code') }}
             </h2>
@@ -1880,7 +1880,7 @@ const updateDataFromModal = (newData: string) => {
               href="https://github.com/ivancarlosti/qrlight/issues"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 outline-none hover:bg-zinc-50 focus-visible:ring-1 focus-visible:ring-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              class="inline-flex items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 outline-hidden hover:bg-zinc-50 focus-visible:ring-1 focus-visible:ring-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -1902,7 +1902,7 @@ const updateDataFromModal = (newData: string) => {
               href="https://github.com/ivancarlosti/qrlight/issues/new"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 outline-none hover:bg-zinc-50 focus-visible:ring-1 focus-visible:ring-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              class="inline-flex items-center justify-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-700 outline-hidden hover:bg-zinc-50 focus-visible:ring-1 focus-visible:ring-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2019,10 +2019,10 @@ const updateDataFromModal = (newData: string) => {
       >
         <AccordionItem v-show="isFrameSectionVisible" value="frame-settings">
           <AccordionTrigger
-            class="button !px-4 text-2xl text-gray-700 outline-none dark:text-gray-100 md:!px-6 lg:!px-8"
+            class="button px-4! text-2xl text-gray-700 outline-hidden md:px-6! lg:px-8! dark:text-gray-100"
             ><span id="frame-settings-title">{{ t('Frame settings') }}</span></AccordionTrigger
           >
-          <AccordionContent class="px-2 pb-8 pt-4">
+          <AccordionContent class="px-2 pt-4 pb-8">
             <section class="w-full space-y-4" aria-labelledby="frame-settings-title">
               <div class="flex flex-row items-center gap-2">
                 <label for="show-frame">{{ t('Add frame') }}</label>
@@ -2292,10 +2292,10 @@ const updateDataFromModal = (newData: string) => {
         </AccordionItem>
         <AccordionItem value="qr-code-settings">
           <AccordionTrigger
-            class="button !px-4 text-2xl text-gray-700 outline-none dark:text-gray-100 md:!px-6 lg:!px-8"
+            class="button px-4! text-2xl text-gray-700 outline-hidden md:px-6! lg:px-8! dark:text-gray-100"
             ><span id="qr-code-settings-title">{{ t('QR code settings') }}</span></AccordionTrigger
           >
-          <AccordionContent class="px-2 pb-8 pt-4">
+          <AccordionContent class="px-2 pt-4 pb-8">
             <section class="w-full space-y-4" aria-labelledby="qr-code-settings-title">
               <div class="field-reveal" v-show="isFieldVisible('preset')">
                 <label>{{ t('Preset') }}</label>
@@ -2401,7 +2401,7 @@ const updateDataFromModal = (newData: string) => {
                       <template v-if="!inputFileForBatchEncoding">
                         <BatchExportFieldsGuide />
                         <button
-                          class="!ms-0 mt-4 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-1 py-4 text-center text-input"
+                          class="ms-0! mt-4 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-1 py-4 text-center text-input"
                           :aria-label="t('Choose a CSV file containing data to encode')"
                           @click="fileInput?.click()"
                           @keyup.enter="fileInput?.click()"
@@ -2758,9 +2758,12 @@ const updateDataFromModal = (newData: string) => {
                   </p>
                 </div>
               </div>
+              <!-- No `mb-4` here: it never applied under Tailwind v3 (the parent's
+                   `space-y-4` rule outranked it) but does under v4, which would
+                   add 16px of unplanned space at the end of the settings panel. -->
               <div
                 id="dots-squares-settings"
-                class="field-reveal mb-4 flex w-full flex-col flex-wrap gap-6 md:flex-row"
+                class="field-reveal flex w-full flex-col flex-wrap gap-6 md:flex-row"
                 v-show="
                   isGroupVisible([
                     'dotsType',

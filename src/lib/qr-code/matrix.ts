@@ -37,7 +37,8 @@ export function buildMatrix(data: string, ecLevel: ECLevel): QRMatrix {
     throw new Error(
       `Failed to build QR matrix for input of byte-length ${
         utf8StringToBytes(data).length
-      } at EC level ${ecLevel}: ${(err as Error).message}`
+      } at EC level ${ecLevel}: ${(err as Error).message}`,
+      { cause: err }
     )
   }
   const count = qr.getModuleCount()

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type HTMLAttributes, computed } from 'vue'
-import type { ComboboxContentEmits, ComboboxContentProps } from 'radix-vue'
-import { ComboboxContent, useForwardPropsEmits } from 'radix-vue'
+import type { ComboboxContentEmits, ComboboxContentProps } from 'reka-ui'
+import { ComboboxContent, useForwardPropsEmits } from 'reka-ui'
 import { cn } from '@/lib/utils'
 
 const props = defineProps<ComboboxContentProps & { class?: HTMLAttributes['class'] }>()
@@ -19,7 +19,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
 <template>
   <ComboboxContent
     v-bind="forwarded"
-    :class="cn('max-h-[300px] overflow-y-auto overflow-x-hidden', props.class)"
+    :class="cn('max-h-75 overflow-x-hidden overflow-y-auto', props.class)"
     :dismissable="false"
   >
     <div role="presentation">
