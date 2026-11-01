@@ -1,0 +1,53 @@
+version: 2
+
+updates:
+  # Keep package.json and pnpm-lock.yaml current. The lockfile is what actually
+  # decides which versions are installed, so a quarterly manual refresh is how
+  # the source-map-js advisory (GHSA-68fv-2mgg-jv7q) shipped two copies of the
+  # same package, one of them vulnerable, for several releases.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      # Conventional Commits, see .github/COMMIT_CONVENTION.md. `build` bumps the
+      # patch version, which matches how dependency refreshes were released.
+      prefix: build
+      include: scope
+    labels:
+      - dependencies
+    groups:
+      # One PR per dependency class instead of one per package: the toolchain
+      # (vite, vitest, storybook, eslint, tailwind) moves together and is tested
+      # as a unit by the Tests workflow.
+      development-dependencies:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      production-dependencies:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # typescript@7 is the native (Go) compiler and no longer ships the classic
+      # lib/typescript.js API, so typescript-eslint@8, vue-tsc and therefore
+      # `pnpm lint` / `pnpm type-check` fail on it. Remove this rule once those
+      # tools support the native compiler; see "Dependency security" in README.md.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns:
+          - '*'
