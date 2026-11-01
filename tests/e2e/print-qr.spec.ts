@@ -104,14 +104,18 @@ test.describe('Print QR Code', () => {
     await expect(sheet.locator('.qr-print-sheet__details')).toHaveCount(0)
   })
 
-  test('omits the Wi-Fi card when the checkbox is cleared', async ({ page }) => {
+  test('keeps the Wi-Fi card when the details checkbox is cleared', async ({ page }) => {
     await page.locator('#data').fill('WIFI:T:WPA;S:CafeGuest;P:welcome123;;')
     await page.locator('#include-print-details').uncheck()
     await triggerPrint(page)
 
     const sheet = printSheet(page)
     await expect(sheet.locator('.qr-print-sheet__art svg')).toHaveCount(1)
-    await expect(sheet.locator('.qr-print-sheet__wifi')).toHaveCount(0)
+    await expect(sheet.locator('.qr-print-sheet__wifi')).toHaveCount(1)
+    await expect(sheet).toContainText('Scan to join the Wi-Fi')
+    await expect(sheet).toContainText('CafeGuest')
+    await expect(sheet).toContainText('welcome123')
+    await expect(sheet.locator('.qr-print-sheet__details')).toHaveCount(0)
   })
 
   test('prints the frame caption with a framed code', async ({ page }) => {

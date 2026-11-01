@@ -69,15 +69,16 @@ The dialog is opened only after the code is in the DOM and its images and fonts
 have decoded, because browsers snapshot the page when `print()` is called — an
 earlier snapshot reaches paper printers with an empty code area.
 
-- `Include details on the printed page` (on by default) adds a details block under
-  the code.
-- For Wi-Fi payloads that block is a card with the network name (SSID), the
-  password in large monospace type, the security mode (`No encryption`, `WEP`,
-  `WPA/WPA2/WPA3` or `WPA3 (SAE)`) and, for hidden networks, `Hidden SSID: Yes`.
-  The raw `WIFI:T:…` payload is not printed — the card says the same thing in a
-  form a visitor can type in.
+- `Include details on the printed page` (on by default) adds the generic details
+  block under the code.
+- For Wi-Fi payloads the credentials card is **always** printed, whether or not
+  that checkbox is ticked: the network name (SSID), the password in large
+  monospace type, the security mode (`No encryption`, `WEP`, `WPA/WPA2/WPA3` or
+  `WPA3 (SAE)`) and, for hidden networks, `Hidden SSID: Yes`. The raw `WIFI:T:…`
+  payload is not printed — the card says the same thing in a form a visitor can
+  type in. Unticking the checkbox only drops the loose frame caption.
 - Every other payload type prints its data type and exact encoded payload, plus
-  the frame caption when one is set.
+  the frame caption when one is set; unticking the checkbox leaves just the code.
 - A transparent QR background is printed as white — paper is opaque, so dots on
   transparent would otherwise be invisible.
 - Printing is available for single exports; batch export keeps its ZIP flow.

@@ -152,22 +152,30 @@ export const buildPrintWifiCard = (options: {
 /**
  * Chooses what to print under the code: the Wi-Fi card for Wi-Fi payloads (the
  * raw `WIFI:T:…` string is noise on a visitor handout), the data type and exact
- * payload for everything else. The frame caption is printed either way, so the
- * paper code can still be re-created later.
+ * payload for everything else.
+ *
+ * The Wi-Fi card is always printed — it holds the credentials a visitor needs to
+ * join the network by hand, so `includeDetails` only suppresses the generic rows
+ * (data type, encoded payload and frame caption). With details switched off the
+ * loose caption goes too, because the paper code can be read back from the code
+ * itself; the Wi-Fi card stays.
  */
 export const buildPrintSheetContent = (options: {
   data: string
   frameText?: string
+  includeDetails?: boolean
   t: PrintDetailsTranslator
 }): PrintSheetContent => {
-  const { data, frameText, t } = options
+  const { data, frameText, includeDetails = true, t } = options
   const wifi = buildPrintWifiCard({ data, t })
 
-  if (!wifi) return { details: buildPrintDetails({ data, frameText, t }) }
+  if (!wifi) {
+    return { details: includeDetails ? buildPrintDetails({ data, frameText, t }) : [] }
+  }
 
   const caption = frameText?.trim()
   return {
-    details: caption ? [{ label: t('Caption'), value: caption }] : [],
+    details: includeDetails && caption ? [{ label: t('Caption'), value: caption }] : [],
     wifi
   }
 }

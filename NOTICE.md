@@ -21,9 +21,10 @@ QRLight is a modified version of **Mini QR**, distributed under the
    `src/print.css`) and opens the print dialog only after the code is mounted, so
    every browser rasterizes it. It optionally prints a details block
    (`src/utils/printDetails.ts`): the data type, encoded payload and frame caption
-   for most payloads, or a Wi-Fi card with the SSID, password, security mode and
-   hidden flag (`parseWifiPayload` in `src/utils/dataEncoding.ts`) instead of the
-   raw `WIFI:` string.
+   for most payloads. Wi-Fi payloads always print a card with the SSID, password,
+   security mode and hidden flag (`parseWifiPayload` in
+   `src/utils/dataEncoding.ts`) instead of the raw `WIFI:` string, whether or not
+   the details block is enabled.
 3. Wi-Fi QR codes gained **WPA3 (SAE)** support: the payload can be emitted as
    `WIFI:T:SAE;...` for WPA3-Personal-only networks, and scanned security tokens
    (`WPA2`, `WPA3`, mixed case) are normalised into the form.

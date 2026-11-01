@@ -119,6 +119,45 @@ describe('print details', () => {
       expect(content.wifi?.rows).toHaveLength(3)
     })
 
+    it('always prints the card, even with details switched off', () => {
+      const content = buildPrintSheetContent({
+        data: 'WIFI:T:WPA;S:CafeGuest;P:welcome123;;',
+        includeDetails: false,
+        t
+      })
+
+      expect(content.details).toEqual([])
+      expect(content.wifi).toEqual({
+        heading: 'Scan to join the Wi-Fi',
+        rows: [
+          { label: 'Network Name (SSID)', value: 'CafeGuest' },
+          { label: 'Password', value: 'welcome123', emphasis: true },
+          { label: 'Encryption', value: 'WPA/WPA2/WPA3' }
+        ]
+      })
+    })
+
+    it('drops the loose caption but keeps the card with details switched off', () => {
+      const content = buildPrintSheetContent({
+        data: 'WIFI:T:nopass;S:Guest;;;',
+        frameText: '  Scan me  ',
+        includeDetails: false,
+        t
+      })
+
+      expect(content.details).toEqual([])
+      expect(content.wifi?.rows).toEqual([
+        { label: 'Network Name (SSID)', value: 'Guest' },
+        { label: 'Encryption', value: 'No encryption' }
+      ])
+    })
+
+    it('prints nothing besides the code for other payloads with details switched off', () => {
+      expect(
+        buildPrintSheetContent({ data: 'https://example.com', includeDetails: false, t })
+      ).toEqual({ details: [] })
+    })
+
     it('falls back to the generic rows without a network name', () => {
       expect(buildPrintWifiCard({ data: 'WIFI:T:WPA;P:pw;;', t })).toBeNull()
       expect(buildPrintSheetContent({ data: 'WIFI:T:WPA;P:pw;;', t })).toEqual({

@@ -907,13 +907,14 @@ async function printQRCode() {
   try {
     printSheetPayload.value = {
       svg: await getInlinedSvgString(buildSvgExportInput()),
-      ...(includePrintDetails.value
-        ? buildPrintSheetContent({
-            data: data.value,
-            frameText: showFrame.value ? frameText.value : '',
-            t
-          })
-        : { details: [] }),
+      // The Wi-Fi credentials card is always printed for Wi-Fi payloads; the
+      // checkbox only decides whether the generic details block comes along.
+      ...buildPrintSheetContent({
+        data: data.value,
+        frameText: showFrame.value ? frameText.value : '',
+        includeDetails: includePrintDetails.value,
+        t
+      }),
       background: getPrintableBackground(styleBackground.value),
       title: exportFilename.value || 'qr-code'
     }
