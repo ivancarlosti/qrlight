@@ -17,7 +17,8 @@
     "format": "prettier --write",
     "generate-splash": "node scripts/generate-splash-screens.js",
     "screenshots": "node scripts/capture-screenshots.mjs",
-    "sync-i18n": "node scripts/sync-i18n.mjs"
+    "sync-i18n": "node scripts/sync-i18n.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs"
   },
   "lint-staged": {
     "*.{vue,js,jsx,ts,tsx,json}": [

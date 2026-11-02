@@ -8,6 +8,7 @@ import { defineConfig } from 'vitest/config'
 // Everything else runs in the `node` project and is picked up by glob,
 // so new test files don't need to touch this config.
 const BROWSER_TESTS = [
+  'src/utils/i18n.test.ts',
   'src/utils/useQRCodeStorage.test.ts',
   'src/utils/css.test.ts',
   'src/utils/framePresets.test.ts',

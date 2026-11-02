@@ -1459,7 +1459,7 @@ const updateDataFromModal = (newData: string) => {
                             height: PREVIEW_QRCODE_DIM_UNIT
                           }"
                           role="img"
-                          aria-label="QR code"
+                          :aria-label="t('QR code')"
                         />
                       </div>
                     </div>
@@ -1485,7 +1485,7 @@ const updateDataFromModal = (newData: string) => {
                         height: PREVIEW_QRCODE_DIM_UNIT
                       }"
                       role="img"
-                      aria-label="QR code preview"
+                      :aria-label="t('QR code preview')"
                     />
                   </div>
                 </div>
@@ -1564,7 +1564,7 @@ const updateDataFromModal = (newData: string) => {
                           height: PREVIEW_QRCODE_DIM_UNIT
                         }"
                         role="img"
-                        aria-label="QR code"
+                        :aria-label="t('QR code')"
                       />
                     </div>
                   </div>
@@ -1592,7 +1592,7 @@ const updateDataFromModal = (newData: string) => {
                 height: PREVIEW_QRCODE_DIM_UNIT
               }"
               role="img"
-              aria-label="QR code"
+              :aria-label="t('QR code')"
             />
           </div>
         </div>
@@ -2659,7 +2659,7 @@ const updateDataFromModal = (newData: string) => {
                     class="text-input"
                     id="width"
                     type="number"
-                    placeholder="width in pixels"
+                    :placeholder="t('width in pixels')"
                     v-model="width"
                   />
                 </div>
@@ -2671,7 +2671,7 @@ const updateDataFromModal = (newData: string) => {
                     class="text-input"
                     id="height"
                     type="number"
-                    placeholder="height in pixels"
+                    :placeholder="t('height in pixels')"
                     v-model="height"
                   />
                 </div>

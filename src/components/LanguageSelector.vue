@@ -1,60 +1,40 @@
 <script setup lang="ts">
 import { Combobox } from '@/components/ui/Combobox'
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { sortedLocales } from '@/utils/language'
-
-const STORAGE_KEY = 'preferred-language'
+import { localeLabel, sortedLocales } from '@/utils/language'
+import { readStoredLocale, writeStoredLocale } from '@/utils/i18n'
 
 const isLocaleSelectOpen = ref(false)
 const { t, locale } = useI18n()
+
+/**
+ * Each language is labelled with its own name ("Français", "العربية"), never
+ * with a translation of it: the list stays readable and searchable whatever
+ * language the UI is in, and switching language does not reorder it. The code
+ * is appended to the search text so "pt" or "zh" finds the entry too.
+ */
 const locales = computed(() =>
   sortedLocales.map((loc) => ({
     value: loc,
-    label: t(loc)
+    label: localeLabel(loc),
+    textValue: `${localeLabel(loc)} ${loc}`
   }))
 )
 
-// Save language preference to localStorage whenever it changes
+// A code stored by an older build (`ptBR`, `zhHANS`, …) is rewritten to the one
+// this build ships. The active language itself is applied by main.js before the
+// first render; here we only remember what the visitor picks.
+const storedLocale = readStoredLocale()
+
+if (storedLocale) {
+  writeStoredLocale(storedLocale)
+}
+
 watch(locale, (newLocale) => {
   if (newLocale) {
-    localStorage.setItem(STORAGE_KEY, newLocale)
+    writeStoredLocale(newLocale)
   }
-})
-
-onMounted(() => {
-  const savedLocale = localStorage.getItem(STORAGE_KEY)
-
-  if (savedLocale && sortedLocales.includes(savedLocale)) {
-    locale.value = savedLocale
-    return
-  }
-
-  // If no saved preference, try to detect from browser
-  const browserLanguages = navigator.languages || [navigator.language]
-
-  for (const browserLang of browserLanguages) {
-    // Extract the language code (e.g., 'en-US' -> 'en')
-    const langCode = browserLang.split('-')[0].toLowerCase()
-
-    // Check for exact match
-    if (sortedLocales.includes(browserLang)) {
-      locale.value = browserLang
-      return
-    }
-
-    // Check for language code match
-    const matchedLocale = sortedLocales.find(
-      (availableLocale) => availableLocale.toLowerCase() === langCode
-    )
-
-    if (matchedLocale) {
-      locale.value = matchedLocale
-      return
-    }
-  }
-
-  // If no match found, keep the default locale (usually 'en')
 })
 </script>
 
@@ -64,6 +44,8 @@ onMounted(() => {
     v-model:value="locale"
     v-model:open="isLocaleSelectOpen"
     :button-label="t('Select language')"
+    :search-placeholder="t('Search language')"
+    :empty-label="t('No matching language')"
   >
     <template #button-icon>
       <svg

@@ -133,7 +133,7 @@ Jane,Smith,Tech,jane@ex.com,Manager,`
     <button
       ref="accordionHeader"
       @click="isExpanded = !isExpanded"
-      class="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-zinc-100 sm:px-4 dark:hover:bg-zinc-800/70"
+      class="flex w-full items-center justify-between p-3 text-start transition-colors hover:bg-zinc-100 sm:px-4 dark:hover:bg-zinc-800/70"
       :class="isExpanded ? 'rounded-t-lg border-b-0' : 'rounded-lg'"
     >
       <div class="flex items-center gap-2">

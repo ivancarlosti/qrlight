@@ -79,6 +79,7 @@ Other scripts:
 | `pnpm lint` / `pnpm format` | ESLint / Prettier                                                           |
 | `pnpm screenshots`          | Regenerates the README screenshots into `docs/screenshots/`                 |
 | `pnpm sync-i18n`            | Adds missing `t()` keys to `locales/en.json`                                |
+| `pnpm check:i18n`           | Fails when a translation bundle drifts out of sync with `en.json`           |
 
 ## Dependency security
 
@@ -157,6 +158,42 @@ earlier snapshot reaches paper printers with an empty code area.
 The sheet is styled by `src/print.css`. While printing, every other element in
 `<body>` is hidden, so dialogs, drawers and toasts never reach the paper.
 
+## Translations
+
+QRLight ships seven languages: English (`en`), Portuguese (Brazil, `pt-BR`),
+Spanish (`es`), French (`fr`), Chinese Simplified (`zh-HANS`), Hindi (`hi`) and
+Arabic (`ar`).
+
+- `SUPPORTED_LOCALES` in `src/utils/i18n.ts` is the only list: it drives the
+  `messages` map, the language selector and `pnpm check:i18n`, so a bundle cannot
+  be imported without being offered, or offered without being imported.
+- The selector labels each language with its own name, taken from the
+  `"language"` key of the bundle (`"Français"`, `"العربية"`), so the list stays
+  readable — and searchable — whatever language the UI is in.
+- The choice is stored in `preferred-language`. Codes written by older builds
+  (`ptBR`, `ptPT`, `zhHANS`, `zh`) are mapped to the current ones instead of being
+  discarded, and the browser language is used when nothing is stored.
+- Arabic sets `<html lang="ar" dir="rtl">` before the first paint. Layout uses
+  logical utilities (`ms-`/`me-`, `ps-`/`pe-`, `start-`/`end-`, `text-start`), so
+  the mirroring is automatic: reach for those instead of `left-`/`right-`.
+
+### Working on translations
+
+```bash
+pnpm sync-i18n    # add every t('…') string missing from locales/en.json
+pnpm check:i18n   # fail on missing/stale keys, broken messages, lost {placeholders}
+```
+
+`pnpm check:i18n` is what keeps a translated page from silently printing English:
+`fallbackLocale` turns a missing string into a fallback, not an error, which is
+how the printed Wi-Fi card used to read "Scan to join the Wi-Fi" in every
+language. A string that exists only in `en.json` is a failure.
+
+To add a language: copy `locales/en.json` to `locales/<code>.json`, translate the
+values, add a `"language"` key holding the language's own name, import the file
+and add the code to `SUPPORTED_LOCALES` in `src/utils/i18n.ts`, then run
+`pnpm check:i18n`.
+
 ## WPA3 Wi-Fi codes
 
 Wi-Fi QR payloads follow the de-facto spec everyone implements
@@ -216,6 +253,7 @@ the `Dockerfile` (or your own build stage) if you want the full experience.
 | Added printing           | `QRCodePrintSheet.vue`, `src/print.css`, `printDetails.ts`                   |
 | Added WPA3 (SAE)         | `WifiEncryption` gained `SAE`; scanned aliases are normalised                |
 | Rebranded                | QRLight naming, locales and PWA manifest; upstream credit kept               |
+| Translations             | Seven bundles in `locales/`, checked by `pnpm check:i18n`                    |
 | Single preset            | Only the neutral `Plain` design ships; the branded samples were removed      |
 | Vendored source          | Built straight from this repository, no upstream clone during `docker build` |
 

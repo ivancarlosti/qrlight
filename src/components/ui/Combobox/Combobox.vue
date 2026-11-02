@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Check, ChevronsUpDown } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -16,11 +17,18 @@ import { cn } from '@/lib/utils'
 const open = defineModel<boolean>('open')
 const value = defineModel<string>('value')
 
+// `textValue` is what the search box matches on: it lets an option show one
+// label while also being findable by its code or keywords.
 defineProps<{
-  items: { value: any; label: string }[]
+  items: { value: any; label: string; textValue?: string }[]
   insertDividerAtIndexes?: number[]
   buttonLabel: string
+  placeholder?: string
+  searchPlaceholder?: string
+  emptyLabel?: string
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -34,19 +42,24 @@ defineProps<{
         class="flex w-fit items-center justify-between gap-2 bg-zinc-50 text-zinc-900 focus-visible:ring-1 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
       >
         <slot name="button-icon"></slot>
-        {{ value ? items.find((item) => item.value === value)?.label : 'Select item...' }}
+        {{
+          value
+            ? items.find((item) => item.value === value)?.label
+            : (placeholder ?? t('Select an item'))
+        }}
         <ChevronsUpDown class="size-4 shrink-0 opacity-50" />
       </Button>
     </PopoverTrigger>
     <PopoverContent class="w-fit p-0">
       <Command class="bg-zinc-50 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
-        <CommandInput class="h-9" placeholder="Search item..." />
-        <CommandEmpty>No item found.</CommandEmpty>
+        <CommandInput class="h-9" :placeholder="searchPlaceholder ?? t('Search...')" />
+        <CommandEmpty>{{ emptyLabel ?? t('No results found') }}</CommandEmpty>
         <CommandList>
           <CommandGroup>
             <template v-for="(item, index) in items" :key="item.value">
               <CommandItem
                 :value="item.value"
+                :text-value="item.textValue ?? item.label"
                 class="bg-zinc-50 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
                 @select="
                   (ev) => {

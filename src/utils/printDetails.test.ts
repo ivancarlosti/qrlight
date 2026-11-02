@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import fr from '../../locales/fr.json'
 import {
   buildPrintDetails,
   buildPrintSheetContent,
@@ -165,6 +166,27 @@ describe('print details', () => {
           { label: 'Data type', value: 'WiFi' },
           { label: 'Encoded content', value: 'WIFI:T:WPA;P:pw;;' }
         ]
+      })
+    })
+
+    it('prints the card in the language of the active bundle', () => {
+      // Regression: the card's keys were missing from every bundle, so a French
+      // page printed the English heading.
+      const translate: PrintDetailsTranslator = (key) =>
+        (fr as Record<string, string>)[key] ?? key
+
+      expect(
+        buildPrintSheetContent({ data: 'WIFI:T:WPA;S:CafeGuest;P:welcome123;;', t: translate })
+      ).toEqual({
+        details: [],
+        wifi: {
+          heading: 'Scannez pour rejoindre le Wi-Fi',
+          rows: [
+            { label: 'Nom du réseau (SSID)', value: 'CafeGuest' },
+            { label: 'Mot de passe', value: 'welcome123', emphasis: true },
+            { label: 'Cryptage', value: 'WPA/WPA2/WPA3' }
+          ]
+        }
       })
     })
 

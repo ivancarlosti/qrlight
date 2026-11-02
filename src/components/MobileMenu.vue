@@ -133,7 +133,7 @@ onUnmounted(() => {
             {{ isLoadingChangelog ? '...' : version }}
             <span
               v-if="hasUnseenChangelog"
-              class="absolute -top-1 -right-1 block size-2.5 rounded-full bg-[#abcbca] ring-2 ring-white dark:ring-zinc-800"
+              class="absolute -inset-e-1 -top-1 block size-2.5 rounded-full bg-[#abcbca] ring-2 ring-white dark:ring-zinc-800"
               aria-hidden="true"
             ></span>
           </button>
@@ -146,7 +146,7 @@ onUnmounted(() => {
           <DialogHeader>
             <DialogTitle>{{ t('Changelog') }}</DialogTitle>
             <DialogClose
-              class="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+              class="absolute inset-e-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
             >
               <X class="size-4" />
               <span class="sr-only">{{ t('Close') }}</span>
@@ -158,7 +158,7 @@ onUnmounted(() => {
               as="div"
               class="prose prose-sm max-w-none text-start dark:prose-invert prose-li:my-1"
             >
-              <div v-if="isLoadingChangelog">Loading...</div>
+              <div v-if="isLoadingChangelog">{{ t('Loading...') }}</div>
               <div v-else-if="changelogContent" v-html="changelogContent"></div>
               <div v-else>{{ t('Failed to load changelog') }}</div>
             </DialogDescription>

@@ -165,7 +165,7 @@ watch(
     <div class="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-lg dark:bg-zinc-900">
       <button
         type="button"
-        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+        class="absolute inset-e-2 top-2 text-gray-500 hover:text-gray-700"
         @click="$emit('close')"
         :aria-label="t('Close')"
       >
@@ -193,7 +193,7 @@ watch(
         {{ t('Text output excludes the frame and image') }}
       </div>
 
-      <div class="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pr-1">
+      <div class="flex max-h-[70vh] flex-col gap-4 overflow-y-auto pe-1">
         <div
           v-for="card in cards"
           :key="card.id"

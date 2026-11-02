@@ -1068,7 +1068,7 @@ const closeModal = () => {
             type="text"
             id="eventTitle"
             v-model="eventTitle"
-            placeholder="e.g., Team Meeting"
+            :placeholder="t('e.g., Team Meeting')"
             class="text-input"
             :class="{
               'border-red-500 focus:border-red-500 focus:ring-red-500': isFieldInvalid('eventTitle')
@@ -1085,7 +1085,7 @@ const closeModal = () => {
             type="text"
             id="eventLocation"
             v-model="eventLocation"
-            placeholder="e.g., Conference Room A"
+            :placeholder="t('e.g., Conference Room A')"
             class="text-input"
           />
 
