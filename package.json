@@ -1,7 +1,7 @@
 {
   "name": "qrlight",
   "private": true,
-  "version": "2.0.1",
+  "version": "3.0.0",
   "type": "module",
   "packageManager": "pnpm@12.16.1",
   "scripts": {
