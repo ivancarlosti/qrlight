@@ -27,11 +27,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-# QRLight defaults baked into the static build. VITE_APP_VERSION is the tag
-# this image was built from (build.yml passes VERSION), shown in the footer
-# instead of the vendored upstream CHANGELOG version.
-ARG VERSION=dev
-ENV VITE_APP_VERSION=${VERSION}
+# QRLight defaults baked into the static build.
 ENV VITE_DEFAULT_PRESET=Plain
 ENV VITE_HIDE_CREDITS=true
 ENV VITE_DISABLE_LOCAL_STORAGE=true

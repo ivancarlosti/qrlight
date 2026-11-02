@@ -1,54 +1,8 @@
 <script setup lang="ts">
-import { marked } from 'marked'
-import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { fetchWithBasePath } from '@/utils/basePath'
-import { useChangelogNotice } from '@/utils/useChangelogNotice'
-import { getDisplayVersion } from '@/utils/changelogVersion'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose
-} from '@/components/ui/dialog'
-import { X } from '@lucide/vue'
 
 const { t } = useI18n()
-const { hasUnseenChangelog, markAsSeen } = useChangelogNotice()
-const version = ref('...')
-const changelogContent = ref<string | null>(null)
-const isLoading = ref(true)
 const hideCredits = ['1', 'true'].includes((import.meta.env.VITE_HIDE_CREDITS ?? '').toLowerCase())
-
-async function fetchAndProcessChangelog() {
-  if (changelogContent.value === null) {
-    isLoading.value = true
-    try {
-      const response = await fetchWithBasePath('/CHANGELOG.md')
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const markdown = await response.text()
-
-      version.value = getDisplayVersion(markdown, import.meta.env.VITE_APP_VERSION)
-
-      changelogContent.value = await marked.parse(markdown)
-    } catch (error) {
-      console.error('Failed to fetch or process changelog:', error)
-      version.value = t('Error')
-      changelogContent.value = `<p>${t('Failed to load changelog')}</p>`
-    } finally {
-      isLoading.value = false
-    }
-  }
-}
-
-onMounted(() => {
-  fetchAndProcessChangelog()
-})
 </script>
 
 <template>
@@ -78,46 +32,6 @@ onMounted(() => {
           />
         </svg>
       </a>
-      <span>|</span>
-      <Dialog>
-        <DialogTrigger as-child>
-          <button
-            class="secondary-button relative"
-            :aria-label="t('View changelog')"
-            :disabled="isLoading"
-            @click="markAsSeen"
-          >
-            {{ isLoading ? '...' : version }}
-            <span
-              v-if="hasUnseenChangelog"
-              class="absolute -inset-e-1 -top-1 block size-2.5 rounded-full bg-[#abcbca] ring-2 ring-white dark:ring-zinc-800"
-              aria-hidden="true"
-            ></span>
-          </button>
-        </DialogTrigger>
-        <DialogContent class="flex max-h-[80vh] flex-col sm:max-w-md" @open-auto-focus.prevent>
-          <DialogHeader>
-            <DialogTitle>{{ t('Changelog') }}</DialogTitle>
-            <DialogClose
-              class="absolute inset-e-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-            >
-              <X class="size-4" />
-              <span class="sr-only">{{ t('Close') }}</span>
-            </DialogClose>
-          </DialogHeader>
-
-          <div class="flex-1 overflow-y-auto pe-2">
-            <DialogDescription
-              as="div"
-              class="prose prose-sm max-w-none text-start dark:prose-invert prose-li:my-1"
-            >
-              <div v-if="isLoading">{{ t('Loading...') }}</div>
-              <div v-else-if="changelogContent" v-html="changelogContent"></div>
-              <div v-else>{{ t('Failed to load changelog') }}</div>
-            </DialogDescription>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   </footer>
 </template>

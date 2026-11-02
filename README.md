@@ -226,19 +226,18 @@ Copy `docker/.env.example` to `.env` in the repository root and adjust as needed
 All variables are inlined at build time (`VITE_*`) except `BASE_PATH`. The same
 example file also holds the Docker Compose overrides — see [Docker](#docker).
 
-| Variable                                   | Default | Description                                                                                   |
-| ------------------------------------------ | ------- | --------------------------------------------------------------------------------------------- |
-| `BASE_PATH`                                | `./`    | Base path the app is served from, e.g. `/qrlight`                                             |
-| `VITE_APP_VERSION`                         | –       | Version shown in the footer. `vX.Y.Z` overrides the changelog lookup; set by the Docker build |
-| `VITE_DEFAULT_PRESET`                      | `Plain` | Preset used for a fresh session                                                               |
-| `VITE_DEFAULT_DATA_TO_ENCODE`              | –       | Pre-filled data for the create form                                                           |
-| `VITE_QR_CODE_PRESETS`                     | `Plain` | JSON array of preset objects; replaces the built-in preset list entirely                      |
-| `VITE_FRAME_PRESET` / `VITE_FRAME_PRESETS` | –       | Default / whitelisted frame presets                                                           |
-| `VITE_HIDE_CREDITS`                        | `false` | Hides the footer credit line and the changelog dialog                                         |
-| `VITE_DISABLE_LOCAL_STORAGE`               | `false` | Disables persisting the config in `localStorage`                                              |
-| `VITE_ENABLE_ANALYTICS`                    | `false` | Enables Vercel Web Analytics                                                                  |
-| `VITE_QR_CREATE_SIMPLE_FULL_MODE_TOGGLE`   | `false` | Shows the Simple/Full mode toggle                                                             |
-| `VITE_FIELDS_VISIBLE`                      | –       | Comma-separated field keys for a fixed Simple mode                                            |
+| Variable                                   | Default | Description                                                              |
+| ------------------------------------------ | ------- | ------------------------------------------------------------------------ |
+| `BASE_PATH`                                | `./`    | Base path the app is served from, e.g. `/qrlight`                        |
+| `VITE_DEFAULT_PRESET`                      | `Plain` | Preset used for a fresh session                                          |
+| `VITE_DEFAULT_DATA_TO_ENCODE`              | –       | Pre-filled data for the create form                                      |
+| `VITE_QR_CODE_PRESETS`                     | `Plain` | JSON array of preset objects; replaces the built-in preset list entirely |
+| `VITE_FRAME_PRESET` / `VITE_FRAME_PRESETS` | –       | Default / whitelisted frame presets                                      |
+| `VITE_HIDE_CREDITS`                        | `false` | Hides the footer credit line                                             |
+| `VITE_DISABLE_LOCAL_STORAGE`               | `false` | Disables persisting the config in `localStorage`                         |
+| `VITE_ENABLE_ANALYTICS`                    | `false` | Enables Vercel Web Analytics                                             |
+| `VITE_QR_CREATE_SIMPLE_FULL_MODE_TOGGLE`   | `false` | Shows the Simple/Full mode toggle                                        |
+| `VITE_FIELDS_VISIBLE`                      | –       | Comma-separated field keys for a fixed Simple mode                       |
 
 ## Docker
 
@@ -275,6 +274,7 @@ from the `Dockerfile` if you want the full experience.
 | Change                   | Notes                                                                        |
 | ------------------------ | ---------------------------------------------------------------------------- |
 | Removed the update check | No polling of a remote version endpoint                                      |
+| No in-app changelog      | Version badge and changelog dialog removed; releases stay on GitHub Releases |
 | Added printing           | `QRCodePrintSheet.vue`, `src/print.css`, `printDetails.ts`                   |
 | Added WPA3 (SAE)         | `WifiEncryption` gained `SAE`; scanned aliases are normalised                |
 | Rebranded                | QRLight naming, locales and PWA manifest; upstream credit kept               |

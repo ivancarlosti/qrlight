@@ -3,20 +3,6 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useFloating, offset, flip, shift, autoUpdate } from '@floating-ui/vue'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useI18n } from 'vue-i18n'
-import { marked } from 'marked'
-import { fetchWithBasePath } from '@/utils/basePath'
-import { useChangelogNotice } from '@/utils/useChangelogNotice'
-import { getDisplayVersion } from '@/utils/changelogVersion'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose
-} from '@/components/ui/dialog'
-import { X } from '@lucide/vue'
 
 defineProps<{
   isDarkMode: boolean
@@ -29,38 +15,11 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { hasUnseenChangelog, markAsSeen } = useChangelogNotice()
 const isOpen = ref(false)
 const reference = ref<HTMLElement | null>(null)
 const floating = ref<HTMLElement | null>(null)
 
-const version = ref('...')
-const changelogContent = ref<string | null>(null)
-const isLoadingChangelog = ref(true)
 const hideCredits = ['1', 'true'].includes((import.meta.env.VITE_HIDE_CREDITS ?? '').toLowerCase())
-
-async function fetchAndProcessChangelog() {
-  if (changelogContent.value === null) {
-    isLoadingChangelog.value = true
-    try {
-      const response = await fetchWithBasePath('/CHANGELOG.md')
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const markdown = await response.text()
-
-      version.value = getDisplayVersion(markdown, import.meta.env.VITE_APP_VERSION)
-
-      changelogContent.value = await marked.parse(markdown)
-    } catch (error) {
-      console.error('Failed to fetch or process changelog:', error)
-      version.value = t('Error')
-      changelogContent.value = `<p>${t('Failed to load changelog')}</p>`
-    } finally {
-      isLoadingChangelog.value = false
-    }
-  }
-}
 
 const { floatingStyles } = useFloating(reference, floating, {
   placement: 'bottom-end',
@@ -91,7 +50,6 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  fetchAndProcessChangelog()
 })
 
 onUnmounted(() => {
@@ -122,49 +80,6 @@ onUnmounted(() => {
       :style="floatingStyles"
       class="relative z-50 w-64 rounded-md border border-zinc-300 bg-white p-4 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
     >
-      <Dialog>
-        <DialogTrigger as-child>
-          <button
-            class="secondary-button absolute inset-e-4 top-4"
-            :aria-label="t('View changelog')"
-            :disabled="isLoadingChangelog"
-            @click="markAsSeen"
-          >
-            {{ isLoadingChangelog ? '...' : version }}
-            <span
-              v-if="hasUnseenChangelog"
-              class="absolute -inset-e-1 -top-1 block size-2.5 rounded-full bg-[#abcbca] ring-2 ring-white dark:ring-zinc-800"
-              aria-hidden="true"
-            ></span>
-          </button>
-        </DialogTrigger>
-
-        <DialogContent
-          class="flex max-h-[80vh] w-[90vw] flex-col sm:max-w-md"
-          @open-auto-focus.prevent
-        >
-          <DialogHeader>
-            <DialogTitle>{{ t('Changelog') }}</DialogTitle>
-            <DialogClose
-              class="absolute inset-e-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-            >
-              <X class="size-4" />
-              <span class="sr-only">{{ t('Close') }}</span>
-            </DialogClose>
-          </DialogHeader>
-
-          <div class="flex-1 overflow-y-auto pe-2">
-            <DialogDescription
-              as="div"
-              class="prose prose-sm max-w-none text-start dark:prose-invert prose-li:my-1"
-            >
-              <div v-if="isLoadingChangelog">{{ t('Loading...') }}</div>
-              <div v-else-if="changelogContent" v-html="changelogContent"></div>
-              <div v-else>{{ t('Failed to load changelog') }}</div>
-            </DialogDescription>
-          </div>
-        </DialogContent>
-      </Dialog>
       <div class="flex flex-col gap-4">
         <!-- App title -->
         <div class="flex items-center">
@@ -231,56 +146,6 @@ onUnmounted(() => {
         </div>
 
         <hr class="border-zinc-200 dark:border-zinc-700" />
-
-        <!-- General feedback / questions / ideas → GitHub Discussions. -->
-        <a
-          class="flex items-center gap-2 rounded-md px-2 py-1.5 text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
-          href="https://github.com/ivancarlosti/qrlight/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-          <span>{{ t('Feedback') }}</span>
-        </a>
-
-        <!-- Concrete bugs → structured issue form. -->
-        <a
-          class="flex items-center gap-2 rounded-md px-2 py-1.5 text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-700"
-          href="https://github.com/ivancarlosti/qrlight/issues/new"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-          <span>{{ t('Report an issue') }}</span>
-        </a>
 
         <!-- GitHub repo -->
         <a

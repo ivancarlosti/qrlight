@@ -2,8 +2,6 @@
 
 interface ImportMetaEnv {
   readonly BASE_PATH?: string
-  /** Version shown in the footer; overrides the changelog lookup when vX.Y.Z. */
-  readonly VITE_APP_VERSION?: string
   readonly VITE_HIDE_CREDITS?: string
   readonly VITE_DEFAULT_PRESET?: string
   readonly VITE_DEFAULT_DATA_TO_ENCODE?: string
