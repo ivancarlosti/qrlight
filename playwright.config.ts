@@ -59,6 +59,14 @@ export default defineConfig({
     command: 'pnpm dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
+    /* The Simple/Full mode toggle is off in production builds and there is no
+       .env.development any more, so the dev-only UI it unlocks
+       (simple-mode.spec.ts) is requested here instead. Playwright merges these
+       values over process.env for the spawned dev server, which is how Vite
+       picks up VITE_* variables that are not in an .env file. */
+    env: {
+      VITE_QR_CREATE_SIMPLE_FULL_MODE_TOGGLE: 'true'
+    },
     stdout: 'pipe',
     stderr: 'pipe'
   }

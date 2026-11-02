@@ -30,6 +30,10 @@ crowdin.yml
 dev-dist
 
 .env
+# Compose overrides for the published image (copy of docker/.env.example).
+# The `.env` rule above already matches it; kept explicit so the location is
+# obvious. The checked-in example lives at docker/.env.example.
+docker/.env
 
 # Playwright
 test-results/

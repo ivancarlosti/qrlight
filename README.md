@@ -213,8 +213,9 @@ silently becoming an open network.
 
 ## Configuration
 
-Copy `.env.example` to `.env` and adjust as needed. All variables are inlined at
-build time (`VITE_*`) except `BASE_PATH`.
+Copy `docker/.env.example` to `.env` in the repository root and adjust as needed.
+All variables are inlined at build time (`VITE_*`) except `BASE_PATH`. The same
+example file also holds the Docker Compose overrides — see [Docker](#docker).
 
 | Variable                                   | Default | Description                                                                                   |
 | ------------------------------------------ | ------- | --------------------------------------------------------------------------------------------- |
@@ -232,18 +233,33 @@ build time (`VITE_*`) except `BASE_PATH`.
 
 ## Docker
 
-```bash
-# Build (the tag is shown in the footer)
-docker build -t qrlight:1.0.20 --build-arg VERSION=v1.0.20 .
+The published image is `ghcr.io/ivancarlosti/qrlight:latest`. It is built from
+this repository's `Dockerfile` and pushed by `.github/workflows/build.yml` on
+every release (`:latest` follows the newest `vX.Y.Z` tag), so nothing has to be
+built locally. `docker/docker-compose.yml` runs that image and has no build step:
 
-# Run
-docker run --rm -p 8080:8080 qrlight:1.0.20
+```bash
+docker compose -f docker/docker-compose.yml pull
+docker compose -f docker/docker-compose.yml up -d
 ```
 
+The app is then served on <http://localhost:8080>; `docker compose -f
+docker/docker-compose.yml down` stops it, and `... logs -f` follows the output.
+The container is checked through a `node -e fetch(...)` healthcheck, since
+`wget`/`curl` are not guaranteed by the Alpine base.
+
+To pin a version instead of `:latest`, change the published port or rename the
+container, copy `docker/.env.example` to `docker/.env` and edit `QRLIGHT_IMAGE`,
+`QRLIGHT_PORT` or `QRLIGHT_CONTAINER_NAME`. Compose reads the `.env` that sits
+next to the compose file passed with `-f`, which is why the copy stays in
+`docker/`.
+
 The image is a two-stage build: Node builds the static bundle, then a slim
-runtime serves `dist/` on port 8080. The build bakes in `VITE_DEFAULT_PRESET=Plain`,
-`VITE_HIDE_CREDITS=true` and `VITE_DISABLE_LOCAL_STORAGE=true`; override them in
-the `Dockerfile` (or your own build stage) if you want the full experience.
+runtime serves `dist/` on port 8080. The build bakes in
+`VITE_DEFAULT_PRESET=Plain`, `VITE_HIDE_CREDITS=true` and
+`VITE_DISABLE_LOCAL_STORAGE=true`. Those values are compiled into the published
+image, so runtime environment variables cannot change them: build your own image
+from the `Dockerfile` if you want the full experience.
 
 ## Differences from upstream
 

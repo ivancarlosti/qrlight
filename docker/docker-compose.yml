@@ -1,0 +1,68 @@
+# QRLight — Docker Compose deployment.
+#
+# Runs the published image from the GitHub Container Registry. There is
+# deliberately NO `build:` section here: the image is built and pushed by
+# .github/workflows/build.yml (from the repository Dockerfile) on every
+# release, so `docker compose up` never compiles anything locally. Add a
+# `build:` block in your own override file if you really need to build.
+#
+# QRLight is a static bundle: every VITE_* flag and BASE_PATH is inlined into
+# the JavaScript at build time and therefore cannot be changed from this file.
+# The published image is built with VITE_DEFAULT_PRESET=Plain,
+# VITE_HIDE_CREDITS=true and VITE_DISABLE_LOCAL_STORAGE=true (see the
+# `ARG`/`ENV` lines of the Dockerfile). Build your own image if you want
+# different values.
+#
+# Usage, from the repository root (the -f path keeps `docker` from being used
+# as the project name — `name:` below pins it to qrlight):
+#   docker compose -f docker/docker-compose.yml pull
+#   docker compose -f docker/docker-compose.yml up -d
+#   docker compose -f docker/docker-compose.yml logs -f
+#   docker compose -f docker/docker-compose.yml down
+#
+# Optional overrides: copy docker/.env.example to docker/.env (a real .env is
+# git-ignored). Compose loads the .env sitting next to the first file passed
+# with -f, so it has to stay in this folder next to this file.
+
+name: qrlight
+
+services:
+  qrlight:
+    # :latest follows the newest vX.Y.Z release of this repository (older
+    # releases only publish their own version tag). Pin an exact version such
+    # as ghcr.io/ivancarlosti/qrlight:2.0.1 for a reproducible deployment, and
+    # run `docker compose ... pull` to fetch it after an override change.
+    image: ${QRLIGHT_IMAGE:-ghcr.io/ivancarlosti/qrlight:latest}
+
+    # Name shown by `docker ps`; override to run several copies side by side.
+    container_name: ${QRLIGHT_CONTAINER_NAME:-qrlight}
+
+    # Restart after crashes and on boot, but not when the service was stopped
+    # deliberately (`docker compose stop`).
+    restart: unless-stopped
+
+    ports:
+      # host port : container port. The image always serves on 8080 through
+      # `serve -s dist`; only the host side is configurable.
+      - '${QRLIGHT_PORT:-8080}:8080'
+
+    # The container only serves static files: it needs no extra capabilities,
+    # and nothing it runs may escalate privileges.
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      # Node ships in the runtime image, so its global fetch is always
+      # available, while wget/curl are not guaranteed by the Alpine base.
+      # `serve -s` answers / with dist/index.html, so HTTP 200 means "ready".
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8080/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # First start only needs a couple of seconds; the grace period just
+      # keeps the health status from flapping on slow hosts.
+      start_period: 10s

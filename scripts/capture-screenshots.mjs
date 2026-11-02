@@ -60,8 +60,8 @@ async function startDevServer() {
       env: {
         ...process.env,
         // Screenshots should show the shipped UI: the dev-only Simple/Full
-        // toggle (see .env.development) stays hidden and the floating credit
-        // badge is off, matching the Docker build.
+        // toggle (forced on for e2e in playwright.config.ts) stays hidden and
+        // the floating credit badge is off, matching the Docker build.
         VITE_QR_CREATE_SIMPLE_FULL_MODE_TOGGLE: 'false',
         VITE_HIDE_CREDITS: 'true'
       },

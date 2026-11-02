@@ -21,3 +21,6 @@ README.md
 NOTICE.md
 Dockerfile
 .dockerignore
+# Compose deployment files (docker/docker-compose.yml + docker/.env.example)
+# are not part of the image build; keep them out of the build context too.
+docker
