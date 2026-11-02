@@ -82,7 +82,12 @@ describe('renderFramed', () => {
       const { svg } = framedWithBgImage()
       expect(svg).toMatch(/<clipPath id="([^"]+)">.*rx="8".*<\/clipPath>/)
       const clipId = svg.match(/<clipPath id="([^"]+)">/)?.[1]
-      expect(svg).toContain(`clip-path="url(#${clipId})"`)
+      // Compare the two ids instead of interpolating the captured value back
+      // into markup: the capture comes out of a regex, so building an
+      // assertion string from it is indistinguishable from building HTML.
+      const clippedIds = [...svg.matchAll(/clip-path="url\(#([^)]+)\)"/g)].map((m) => m[1])
+      expect(clipId).toBeDefined()
+      expect(clippedIds).toContain(clipId)
     })
 
     it('layers the background image above the fill rect and below the QR group', () => {

@@ -44,8 +44,38 @@ export function serializeQRConfig(
   return { props, style, frame }
 }
 
+/**
+ * Returns a copy of `props` without the encoded payload.
+ *
+ * `props.data` *is* the payload: a URL, but just as often a Wi-Fi password, the
+ * contact details in a vCard or the body of a `mailto:` link. The stored config
+ * is only ever used to restore the design — `applyQRConfig` is called without
+ * `restoreData`, and presets deliberately never touch the user's data — so a
+ * clear-text copy in localStorage buys nothing and leaks PII (CWE-312).
+ */
+export function stripSensitivePayload(
+  props: StyledQRCodeProps & { name?: string }
+): StyledQRCodeProps & { name?: string } {
+  const { data: _payload, ...persistable } = props
+  return persistable
+}
+
 export function saveQRConfig(config: QRCodeConfig): void {
-  localStorage.setItem(QR_CODE_STORAGE_KEY, JSON.stringify(config))
+  // Rebuild the config field by field instead of spreading `config`, so the
+  // payload cannot ride along with the object that gets serialised.
+  const persistable: QRCodeConfig = {
+    props: stripSensitivePayload(config.props),
+    style: { borderRadius: config.style.borderRadius, background: config.style.background },
+    frame: config.frame
+      ? {
+          text: config.frame.text,
+          position: config.frame.position,
+          style: { ...config.frame.style },
+          captionWidth: config.frame.captionWidth
+        }
+      : null
+  }
+  localStorage.setItem(QR_CODE_STORAGE_KEY, JSON.stringify(persistable))
 }
 
 export function loadQRConfig(): QRCodeConfig | null {

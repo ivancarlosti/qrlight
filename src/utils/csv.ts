@@ -50,6 +50,17 @@ export const isVCardStructure = (header: string): boolean => {
 }
 
 /**
+ * Removes every carriage return still left in a row.
+ *
+ * Row terminators are normally consumed by `splitCSVRows`, but a stray `\r`
+ * can survive (CR-only content mixed with LF, or a `\r` that was not part of a
+ * `\r\n` pair). `String#replace` with a string pattern only removes the first
+ * match, so the remainder of the row keeps its CRs — strip globally instead.
+ * Rows emitted by the CRLF branch are already clean and never reach this.
+ */
+const stripCarriageReturns = (row: string): string => row.replace(/\r/g, '')
+
+/**
  * Splits CSV content into rows while respecting quoted fields with newlines
  * @param csvContent The CSV content as a string
  * @returns Array of row strings
@@ -68,7 +79,7 @@ const splitCSVRows = (csvContent: string): string[] => {
     } else if (char === '\n' && !insideQuotes) {
       // Only treat newline as row separator if not inside quotes
       if (currentRow.trim() !== '') {
-        rows.push(currentRow.replace('\r', ''))
+        rows.push(stripCarriageReturns(currentRow))
       }
       currentRow = ''
     } else if (char === '\r' && csvContent[i + 1] === '\n' && !insideQuotes) {
@@ -85,7 +96,7 @@ const splitCSVRows = (csvContent: string): string[] => {
 
   // Add the last row if it's not empty
   if (currentRow.trim() !== '') {
-    rows.push(currentRow.replace('\r', ''))
+    rows.push(stripCarriageReturns(currentRow))
   }
 
   return rows

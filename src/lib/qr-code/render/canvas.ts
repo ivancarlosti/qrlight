@@ -164,7 +164,10 @@ function extractImageOverlay(svg: string): { svg: string; overlay: ImageOverlay 
 }
 
 function readAttr(source: string, name: string): string | null {
-  const escaped = name.replace(/:/g, '\\:')
+  // Escape every regex metacharacter, not just the `:` of `xlink:href`: a name
+  // such as `d.offset` or `x[0]` would otherwise act as regex syntax and match
+  // attributes the caller never asked for.
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const re = new RegExp(`(?:^|\\s)${escaped}\\s*=\\s*"([^"]*)"`)
   const m = source.match(re)
   return m ? m[1] : null

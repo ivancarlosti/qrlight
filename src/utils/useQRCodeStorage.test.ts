@@ -3,6 +3,7 @@ import {
   isLocalStorageEnabled,
   hasStoredQRConfig,
   serializeQRConfig,
+  stripSensitivePayload,
   saveQRConfig,
   loadQRConfig,
   QR_CODE_STORAGE_KEY,
@@ -67,6 +68,15 @@ const sampleConfigWithFrameFont: QRCodeConfig = {
   }
 }
 
+/**
+ * Mirrors the storage contract: the encoded payload is never persisted, so
+ * round-trip comparisons are made against the config with `props.data` dropped.
+ */
+const withoutPayload = (config: QRCodeConfig): QRCodeConfig => {
+  const { data: _payload, ...props } = config.props
+  return { ...config, props }
+}
+
 describe('Constants', () => {
   it('exports the correct storage key', () => {
     expect(QR_CODE_STORAGE_KEY).toBe('qrCodeConfig')
@@ -113,13 +123,30 @@ describe('saveQRConfig and loadQRConfig', () => {
     saveQRConfig(sampleConfig)
     const stored = localStorage.getItem(QR_CODE_STORAGE_KEY)
     expect(stored).not.toBeNull()
-    expect(JSON.parse(stored!)).toEqual(sampleConfig)
+    expect(JSON.parse(stored!)).toEqual(withoutPayload(sampleConfig))
   })
 
   it('loads a previously saved config from localStorage', () => {
     saveQRConfig(sampleConfig)
     const loaded = loadQRConfig()
-    expect(loaded).toEqual(sampleConfig)
+    expect(loaded).toEqual(withoutPayload(sampleConfig))
+  })
+
+  it('never persists the encoded payload', () => {
+    const wifi = 'WIFI:T:WPA;S:HomeNet;P:s3cr3t-pass;;'
+    saveQRConfig({ ...sampleConfig, props: { ...sampleConfig.props, data: wifi } })
+    const stored = localStorage.getItem(QR_CODE_STORAGE_KEY)!
+    expect(stored).not.toContain('s3cr3t-pass')
+    expect(JSON.parse(stored).props).not.toHaveProperty('data')
+  })
+
+  it('round-trips the design without the payload', () => {
+    saveQRConfig(sampleConfig)
+    const loaded = loadQRConfig()
+    expect(loaded?.props.dotsOptions).toEqual(sampleConfig.props.dotsOptions)
+    expect(loaded?.props.width).toBe(200)
+    expect(loaded?.style).toEqual(sampleConfig.style)
+    expect(loaded?.props.data).toBeUndefined()
   })
 
   it('loads config with frame data correctly', () => {
@@ -198,7 +225,15 @@ describe('saveQRConfig and loadQRConfig', () => {
 
   it('returns the config when frame is null', () => {
     saveQRConfig(sampleConfig)
-    expect(loadQRConfig()).toEqual(sampleConfig)
+    expect(loadQRConfig()).toEqual(withoutPayload(sampleConfig))
+  })
+
+  it('persists the frame caption width', () => {
+    saveQRConfig({
+      ...sampleConfigWithFrame,
+      frame: { ...sampleConfigWithFrame.frame!, captionWidth: 260 }
+    })
+    expect(loadQRConfig()?.frame?.captionWidth).toBe(260)
   })
 
   it('overwrites previous config when saved again', () => {
@@ -207,6 +242,24 @@ describe('saveQRConfig and loadQRConfig', () => {
     saveQRConfig(updated)
     const loaded = loadQRConfig()
     expect(loaded?.style.borderRadius).toBe('0px')
+  })
+})
+
+describe('stripSensitivePayload', () => {
+  it('drops only the payload', () => {
+    const stripped = stripSensitivePayload(sampleConfig.props)
+    expect(stripped).not.toHaveProperty('data')
+    expect(stripped.width).toBe(200)
+    expect(stripped.dotsOptions).toEqual(sampleConfig.props.dotsOptions)
+  })
+
+  it('does not mutate the input props', () => {
+    stripSensitivePayload(sampleConfig.props)
+    expect(sampleConfig.props.data).toBe('https://example.com')
+  })
+
+  it('is a no-op when there is no payload', () => {
+    expect(stripSensitivePayload({ width: 100 })).toEqual({ width: 100 })
   })
 })
 

@@ -234,7 +234,7 @@ example file also holds the Docker Compose overrides — see [Docker](#docker).
 | `VITE_QR_CODE_PRESETS`                     | `Plain` | JSON array of preset objects; replaces the built-in preset list entirely |
 | `VITE_FRAME_PRESET` / `VITE_FRAME_PRESETS` | –       | Default / whitelisted frame presets                                      |
 | `VITE_HIDE_CREDITS`                        | `false` | Hides the footer credit line                                             |
-| `VITE_DISABLE_LOCAL_STORAGE`               | `false` | Disables persisting the config in `localStorage`                         |
+| `VITE_DISABLE_LOCAL_STORAGE`               | `false` | Disables persisting the design in `localStorage` (never the payload)     |
 | `VITE_ENABLE_ANALYTICS`                    | `false` | Enables Vercel Web Analytics                                             |
 | `VITE_QR_CREATE_SIMPLE_FULL_MODE_TOGGLE`   | `false` | Shows the Simple/Full mode toggle                                        |
 | `VITE_FIELDS_VISIBLE`                      | –       | Comma-separated field keys for a fixed Simple mode                       |

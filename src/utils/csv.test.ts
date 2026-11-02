@@ -266,6 +266,33 @@ Jane,Smith,jane@example.com,XYZ Inc,Manager`
         fileName: undefined
       })
     })
+
+    it('strips every stray carriage return from a row, not just the first', () => {
+      // Lone CRs (legacy CR-only content) are not row separators here, so they
+      // reach the row as-is. A single String#replace('\r', '') only cleaned the
+      // first one and left the rest of the row corrupted.
+      const csvContent =
+        'url,frameText\nhttps://example.com,"first\rsecond\rthird"\nhttps://t.com,ok'
+
+      const result = parseCSV(csvContent)
+      expect(result.isValid).toBe(true)
+      expect(result.data[0]).toEqual({
+        url: 'https://example.com',
+        frameText: 'firstsecondthird',
+        fileName: undefined
+      })
+    })
+
+    it('strips carriage returns from the last row without a trailing newline', () => {
+      const result = parseCSV('url,frameText\nhttps://example.com,a\rb\rc')
+
+      expect(result.isValid).toBe(true)
+      expect(result.data[0]).toEqual({
+        url: 'https://example.com',
+        frameText: 'abc',
+        fileName: undefined
+      })
+    })
   })
 
   describe('validateCSVData', () => {
